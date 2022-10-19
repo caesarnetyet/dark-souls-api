@@ -38,6 +38,8 @@ class CaracteristicasController extends Controller
         $personaje = Personaje::find($request->personaje_id);
         if(!$personaje)
             return response()->json(["error" => "El personaje no existe"], 400);
+        if($caracteristicas->where("personaje_id", $request->personaje_id)->first())
+            return response()->json(["error" => "El personaje ya tiene caracteristicas"], 400);
         $caracteristicas->personaje_id = $request->personaje_id;
         $caracteristicas->nivel = $request->nivel;
         $caracteristicas->vitalidad = $request->vitalidad;
@@ -67,7 +69,7 @@ class CaracteristicasController extends Controller
     {
        
             $validator = Validator::make(
-            $request->all(),
+            $request->all(),    
             [
                 "personaje_id" => "required | integer | exists:personajes,id",
                 "nivel" => "required | integer",

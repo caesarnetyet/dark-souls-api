@@ -70,10 +70,10 @@ class ClasesController extends Controller
             ], 500);
         }
     }
-    public function encontrarClase($nombre)
+    public function encontrarClase($id)
     {
         $clase = new Clase;
-        $clase = $clase->where('nombre', $nombre)->first();
+        $clase = $clase->find($id);
         if ($clase) {
             return response()->json(
                 [
@@ -87,7 +87,7 @@ class ClasesController extends Controller
         } else {
             return response()->json([
                 'mensaje' => 'Clase no encontrada'
-            ], 500);
+            ], 400);
         }
     }
 
