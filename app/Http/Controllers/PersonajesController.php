@@ -107,4 +107,16 @@ class PersonajesController extends Controller
             ]
         ], 201);
     }
+
+    public function personajeConArmas() {
+        $personajes = Personaje::with('armas')->get();
+        return response()->json($personajes);
+    }
+
+    public function personajeConCaracteristicas(){
+        $personajes = Personaje::with('caracteristica')->get();
+        return response()->json($personajes);
+    }
+
+
 }

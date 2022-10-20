@@ -143,4 +143,13 @@ class ArmasController extends Controller
             ], 500);
         }
     }
+
+    public function armaConPersonajes() {
+        $armas = Arma::with('personajes')->get();
+        return response()->json($armas, 200);
+
+    
+    }
+
+    
 }

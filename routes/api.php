@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArmasController;
 use App\Http\Controllers\CaracteristicasController;
 use App\Http\Controllers\ClasesController;
+use App\Http\Controllers\EquiposController;
 use App\Http\Controllers\PersonajesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,22 +34,27 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('personajes')->group(function(){
         Route::get('/', [PersonajesController::class, 'index']);
-        Route::get('/{id}', [PersonajesController::class, 'encontrarPersonaje']);
         Route::post('/agregar', [PersonajesController::class, 'agregarPersonaje']);
         Route::delete('/borrar/{id}', [PersonajesController::class, 'borrarPorId']);
         Route::put('/actualizar/{id}', [PersonajesController::class, 'actualizarPersonaje']);
+        Route::get('/armas', [PersonajesController::class, 'personajeConArmas']);
+        Route::get('/carasteristica', [PersonajesController::class, 'personajeConCaracteristicas']);
         Route::prefix('caracteristicas')->group(function(){
-            Route::get('/{id}', [CaracteristicasController::class, 'obtenerCaracteristica']);
+
             Route::post('/agregar', [CaracteristicasController::class, 'agregarCaracteristica']);
             Route::put('/actualizar', [CaracteristicasController::class, 'actualizarCaracteristica']);
         });    
     });
     Route::prefix('armas')->group(function(){
         Route::get('/', [ArmasController::class, 'index']);
-        Route::get('/{id}', [ArmasController::class, 'encontrarArma']);
         Route::post('/agregar', [ArmasController::class, 'agregarArma']);
         Route::delete('/borrar/{id}', [ArmasController::class, 'borrarPorId']);
         Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
-
+        Route::get('/personajes', [ArmasController::class, 'armaConPersonajes']);
     });
+    Route::prefix('equipos')->group(function(){
+        Route::get('/', [EquiposController::class, 'index']);
+        Route::post('/agregar', [EquiposController::class, 'agregarEquipo']);
+        Route::delete('/eliminar', [EquiposController::class, 'eliminarEquipo']);
+    }); 
 });

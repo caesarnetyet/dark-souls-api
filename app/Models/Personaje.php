@@ -15,9 +15,9 @@ class Personaje extends Model
         return $this->belongsTo(Clase::class);
     }
 
-    public function equipos()
+    public function armas()
     {
-        return $this->belongsToMany(Equipo::class);
+        return $this->belongsToMany(Arma::class, 'equipos', 'personaje_id', 'arma_id');
     }
 
     public function estadistica(){

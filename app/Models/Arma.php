@@ -10,9 +10,9 @@ class Arma extends Model
 {
     use HasFactory;
 
-    public function equipos()
+    public function personajes()
     {
-        return $this->belongsToMany(Equipo::class);
+        return $this->belongsToMany(Personaje::class, 'equipos', 'personaje_id', 'arma_id');
     }
 
     public function requesito(){
