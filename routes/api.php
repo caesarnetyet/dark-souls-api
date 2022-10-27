@@ -5,6 +5,10 @@ use App\Http\Controllers\CaracteristicasController;
 use App\Http\Controllers\ClasesController;
 use App\Http\Controllers\EquiposController;
 use App\Http\Controllers\PersonajesController;
+use App\Http\Controllers\Jefe;
+use App\Http\Controllers\Juego;
+use App\Http\Controllers\Mapa;
+use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('v1')->group(function () {
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::prefix('clases')->group(function(){
         Route::get('/', [ClasesController::class, 'index']);
         Route::get('/{nombre}', [ClasesController::class, 'encontrarClase']);
@@ -57,4 +61,44 @@ Route::prefix('v1')->group(function () {
         Route::post('/agregar', [EquiposController::class, 'agregarEquipo']);
         Route::delete('/eliminar', [EquiposController::class, 'eliminarEquipo']);
     }); 
+
+    Route::prefix('megaman')->group(function(){
+        
+Route::prefix('/Tipos')->group(function()
+{
+    Route::get('/insertar',[Tipo::class,'insertarTipo']);
+    Route::get('/modificar/{id}',[Tipo::class,'modificarTipo']);
+    Route::get('/consultar',[Tipo::class,'consultarTipos']);
+    Route::get('/consultar/{id}',[Tipo::class,'consultarTipo']);
+});
+Route::prefix('/Jefes')->group(function()
+{
+    Route::get('/modificar/{id}',[Jefe::class,'modificarJefe']);
+    Route::post('/insertar',[Jefe::class,'insertarJefe']);
+    Route::get('/consultar', [jefe::class, 'consultarJefes']);
+    Route::get('/consultar/{id}', [jefe::class, 'consultarJefe']);
+});
+Route::prefix('/Mapas')->group(function()
+{
+    Route::get('/modificar/{id}',[Mapa::class,'modificarMapa']);
+    Route::get('/insertar',[Mapa::class,'insertarMapa']);
+    Route::get('/consultar',[Mapa::class,'consultarMapas']);
+});
+Route::prefix('/Juegos')->group(function()
+{
+    Route::put('/modificar/{id}',[Juego::class,'modificarJuego']);
+    Route::post('/insertar',[Juego::class,'insertarJuego']);
+    Route::get('/consultar',[Juego::class,'consultarJuegos']);
+    Route::get('/consultar/{id}',[Juego::class,'consultarJuego']);
+});
+});
+
+});
+Route::prefix('usuario')->group(function(){
+    Route::post('/registro', [UsersController::class, 'register']);
+    Route::post('/login', [UsersController::class, 'login']);
+   Route::middleware('auth:sanctum')->group(function(){
+        Route::get('/logout', [UsersController::class, 'logout']);
+        Route::get('/', [UsersController::class, 'info']);
+    });
 });

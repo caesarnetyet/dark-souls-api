@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Caracteristica;
 use App\Models\Personaje;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
 class CaracteristicasController extends Controller
 {
-    public function agregarCaracteristica(Request $request,  Validator $validator){
+    public function agregarCaracteristica(Request $request,  Response $response){
+        
         $caracteristicas = new Caracteristica();
         $validator = Validator::make($request->all(),
         [
@@ -35,6 +38,22 @@ class CaracteristicasController extends Controller
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
+        $response = Http::post('http://192.168.123.139:8000/api/caracteristicas/agregar',[
+            
+                "personaje_id"=> 1,
+                "nivel"=> 80,
+                "vitalidad"=> 30,
+                "aguante"=> 25,
+                "vigor"=> 30,
+                "fuerza"=> 30,
+                "destreza"=>45,
+                "aprendizaje"=> 20,
+                "inteligencia"=> 20,
+                "fe"=> 15
+            
+        ]);
+        if ($response->failed())
+        return response()->json($response->json(),400);
         $personaje = Personaje::find($request->personaje_id);
         if(!$personaje)
             return response()->json(["error" => "El personaje no existe"], 400);
@@ -56,7 +75,7 @@ class CaracteristicasController extends Controller
                 "mensaje" => "Características agregadas correctamente",
                 "personaje" => $personaje,
                 "caracteristicas" => $caracteristicas
-            ], 201);
+            ], $response->status());
         }else{
             return response()->json([
                 "mensaje" => "Error al agregar características"
@@ -95,6 +114,8 @@ class CaracteristicasController extends Controller
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
+       
+
         $caracteristica = Caracteristica::where('personaje_id', $request->personaje_id)->first();
        
         if (!$caracteristica) {

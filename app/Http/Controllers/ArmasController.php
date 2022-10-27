@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Arma;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
 class ArmasController extends Controller
@@ -42,33 +44,42 @@ class ArmasController extends Controller
             'peso.max' => 'El peso debe tener como máximo 100',
             'estabilidad.required' => 'La estabilidad es requerida',
             'estabilidad.integer' => 'La estabilidad debe ser un número entero',
-            'estabilidad.max' => 'La estabilidad debe tener como máximo 100'
+            'estabilidad.max' => 'La estabilidad debe tener como máximo 100'    
         ]
        
         );
         if ($validator->fails())
         return response()->json(["errores" => $validator->errors()], 400);
 
-        $arma = new Arma();
-        $arma->nombre = $request->nombre;
-        $arma->tipo = $request->tipo;
-        $arma->fuerza = $request->fuerza;
-        $arma->magia = $request->magia;
-        $arma->peso = $request->peso;
-        $arma->estabilidad = $request->estabilidad;
-        $arma->save();
+        $response = Http::post(' http://127.0.0.1:8000/api/v1/armas/agregar',[
+            
+            "nombre"=>$request->nombre,
+            "tipo"=> $request->tipo,
+            "fuerza"=> "100",
+            "magia"=> 0,
+            "peso"=> 3,
+            "estabilidad"=>10
+        
+        
+    ]);
+    if ($response->failed())
+        return response()->json($response->json(),400);
 
-        if($arma){
+            $arma = new Arma();
+            $arma->nombre = $request->nombre;
+            $arma->tipo = $request->tipo;
+            $arma->fuerza = $request->fuerza;
+            $arma->magia = $request->magia;
+            $arma->peso = $request->peso;
+            $arma->estabilidad = $request->estabilidad;
+            $arma->save();
             return response()->json([
-                'mensaje' => 'Arma agregada correctamente',
-                'arma' => $arma
+                "mensaje" => "Arma agregada correctamente",
+                "arma" => $arma
             ], 201);
-        }else{
-            return response()->json([
-                'mensaje' => 'Error al agregar arma'
-            ], 500);
-        }
+        
     }
+
 
     public function actualizarArma(Request $request){
         $validator = Validator::make($request->all(),
@@ -107,7 +118,20 @@ class ArmasController extends Controller
        
         );
         if ($validator->fails())
-        return response()->json(["errores" => $validator->errors()], 400);
+        $response = Http::post(' http://127.0.0.1:8000/api/v1/armas/actualizar',[
+            
+            
+            "id"=> 3,
+            "nombre"=>"Odachi",
+            "tipo"=> "Katana",
+            "fuerza"=> 90,
+            "magia"=> 0,
+            "peso"=> 6,
+            "estabilidad"=>12
+]);
+if ($response->failed())
+        return response()->json($response->json(),400);
+
 
         $arma = Arma::find($request->id);
         $arma->nombre = $request->nombre;

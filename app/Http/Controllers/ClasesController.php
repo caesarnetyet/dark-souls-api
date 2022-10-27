@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Clase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class ClasesController extends Controller
@@ -38,21 +39,22 @@ class ClasesController extends Controller
         }
         if ($clase->where('nombre', $request->nombre)->first())
             return response()->json(["error" => "La clase ya existe"], 400);
-
+        
+            $response = Http::post('http://192.168.123.139:8000/api/clases/agregar',[
+                'nombre'=>$request->nombre,
+            ]);
+        if ($response->failed())
+            return response()->json($response->json(),400);
 
         $clase->nombre = $request->nombre;
         $clase->save();
 
-        if ($clase) {
+        
             return response()->json([
                 'mensaje' => 'Clase agregada correctamente',
                 'clase' => $clase
             ], 201);
-        } else {
-            return response()->json([
-                'mensaje' => 'Error al agregar clase'
-            ], 500);
-        }
+       
     }
 
     public function borrarPorId($id)
@@ -114,6 +116,12 @@ class ClasesController extends Controller
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
+
+        $response = Http::post('http://192.168.123.139:8000/api/clases/actualizar/{id}',[
+            'nombre'=>$request->nombre,
+        ]);
+        if ($response->failed())
+            return response()->json($response->json(),400);
         $clase->nombre = $request->nombre;
         $clase->save();
         return response()->json([
