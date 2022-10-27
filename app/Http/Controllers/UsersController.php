@@ -4,51 +4,62 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
     public function register(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string| min:6',
-        ],
-        [
-            'name.required' => 'El nombre es requerido',
-            'name.between' => 'El nombre debe tener entre 2 y 100 caracteres',
-            'email.required' => 'El email es requerido',
-            'email.email' => 'El email no es válido',
-            'email.unique' => 'El email ya está registrado',
-            'password.required' => 'La contraseña es requerida',
-            'password.min' => 'La contraseña debe tener al menos 6 caracteres',
+        $response = Http::post("http://192.168.127.135:8000/api/Usuarios/insertar",[
+            "name"=>$request->name,
+            "email"=>$request->email,
+            "password"=>$request->password,
         ]);
-        if($validator->fails()){
-            return response()->json($validator->errors(), 400);
+        
+        if($response->successful()) {
+            User::create([
+                "name"=>$request->name,
+                "email"=>$request->email,
+                "password"=>bcrypt($request->password),
+            ]);
+            return response()->json($response->json(), 201);
+        } else {
+            return response()->json($response->json(), 400);
         }
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password)
+
+    }
+    
+
+
+    public function login(Request $request, Response $response) {
+        $response = Http::post("http://192.168.127.135:8000/api/Usuarios/login",[
+            "email"=>$request->email,
+            "password"=>$request->password,
         ]);
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 201);
+        if($response->successful()) {
+            $user = User::where("email", $request->email)->first();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(["token" => $token, "token remoto" => $response['acces_token']], 200);
+        } else {
+            return response()->json($response->json(), 400);
+        }
     }
 
 
-    public function login(Request $request) {
+
+    
+    public function loginAsArmero(Request $request) {
         if(!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Correo eletronico o contraseña no coinciden'
             ], 401);
         }
         $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token', ['armero'])->plainTextToken;
         return response()->json([
+            'tipo_usuario' => 'armero',
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], 201);

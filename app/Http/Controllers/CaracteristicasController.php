@@ -40,16 +40,16 @@ class CaracteristicasController extends Controller
         }
         $response = Http::post('http://192.168.123.139:8000/api/caracteristicas/agregar',[
             
-                "personaje_id"=> 1,
-                "nivel"=> 80,
-                "vitalidad"=> 30,
-                "aguante"=> 25,
-                "vigor"=> 30,
-                "fuerza"=> 30,
-                "destreza"=>45,
-                "aprendizaje"=> 20,
-                "inteligencia"=> 20,
-                "fe"=> 15
+                "personaje_id"=> $request->personaje_id,
+                "nivel"=> $request->nivel,
+                "vitalidad"=> $request->vitalidad,
+                "aguante"=> $request->aguante,
+                "vigor"=> $request->vigor,
+                "fuerza"=> $request->fuerza,
+                "destreza"=>$request->destreza,
+                "aprendizaje"=> $request->aprendizaje,
+                "inteligencia"=> $request->inteligencia,
+                "fe"=> $request->fe
             
         ]);
         if ($response->failed())

@@ -55,12 +55,10 @@ class Juego extends Controller
         }
     }
 
-    public function consultarJuegos(){
-        $juegos = juegos::select()->get();
-        return $juegos;
+    public function consultarJuegos(Request $request){
+        $response = Http::withToken($request->token)->get('http://192.168.127.135:8000/api/Juegos/consultar');
+        return response()->json($response->json(),$response->status());
+   
     }
-    public function consultarJuego(int $id){
-        $juego = juegos::select()->where('id','=',$id)->get();
-        return $juego;
-    }
+  
 }

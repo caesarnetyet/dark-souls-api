@@ -16,6 +16,7 @@ class ArmasController extends Controller
     }
 
     public function agregarArma(Request $request, Validator $validator){
+    
         $validator = Validator::make($request->all(),
         [
             'nombre' => 'required | string | max:50 | unique:armas',
@@ -51,16 +52,13 @@ class ArmasController extends Controller
         if ($validator->fails())
         return response()->json(["errores" => $validator->errors()], 400);
 
-        $response = Http::post(' http://127.0.0.1:8000/api/v1/armas/agregar',[
-            
+        $response = Http::withToken($request->token)->post(' http://127.0.0.1:8000/api/v1/armas/agregar',[
             "nombre"=>$request->nombre,
             "tipo"=> $request->tipo,
-            "fuerza"=> "100",
-            "magia"=> 0,
-            "peso"=> 3,
-            "estabilidad"=>10
-        
-        
+            "fuerza"=> $request->fuerza,
+            "magia"=> $request->magia,
+            "peso"=> $request->peso,
+            "estabilidad"=>$request->estabilidad
     ]);
     if ($response->failed())
         return response()->json($response->json(),400);
@@ -121,13 +119,13 @@ class ArmasController extends Controller
         $response = Http::post(' http://127.0.0.1:8000/api/v1/armas/actualizar',[
             
             
-            "id"=> 3,
-            "nombre"=>"Odachi",
-            "tipo"=> "Katana",
-            "fuerza"=> 90,
-            "magia"=> 0,
-            "peso"=> 6,
-            "estabilidad"=>12
+            "id"=> $request->id,
+            "nombre"=>$request->nombre,
+            "tipo"=> $request->tipo,
+            "fuerza"=>$request->fuerza,
+            "magia"=> $request->magia,
+            "peso"=> $request->peso,
+            "estabilidad"=>$request->estabilidad
 ]);
 if ($response->failed())
         return response()->json($response->json(),400);
@@ -152,9 +150,15 @@ if ($response->failed())
                 'mensaje' => 'Error al actualizar arma'
             ], 500);
     }
-    public function borrarPorId($id)
+    public function borrarPorId(Request $request)
     {
-        $arma = Arma::find($id);
+        $arma = Arma::find($request->id);
+        $response = Http::post(' http://127.0.0.1:8000/api/v1/armas/borrar',[
+            "id"=> $request->id,
+]);
+if ($response->failed())
+        return response()->json($response->json(),400);
+
         if ($arma) {
             $arma->delete();
             return response()->json([

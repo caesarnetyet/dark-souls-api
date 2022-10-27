@@ -26,8 +26,16 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+ Route::middleware(['auth:sanctum','ability:armero'])->group(function(){
+    Route::prefix('armas')->group(function(){
+        Route::get('/', [ArmasController::class, 'index']);
+        Route::post('/agregar', [ArmasController::class, 'agregarArma']);
+        Route::delete('/borrar', [ArmasController::class, 'borrarPorId']);
+        Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
+        Route::get('/personajes', [ArmasController::class, 'armaConPersonajes']);
+    });
+   });
+Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('clases')->group(function(){
         Route::get('/', [ClasesController::class, 'index']);
         Route::get('/{nombre}', [ClasesController::class, 'encontrarClase']);
@@ -49,13 +57,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
             Route::put('/actualizar', [CaracteristicasController::class, 'actualizarCaracteristica']);
         });    
     });
-    Route::prefix('armas')->group(function(){
-        Route::get('/', [ArmasController::class, 'index']);
-        Route::post('/agregar', [ArmasController::class, 'agregarArma']);
-        Route::delete('/borrar/{id}', [ArmasController::class, 'borrarPorId']);
-        Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
-        Route::get('/personajes', [ArmasController::class, 'armaConPersonajes']);
-    });
+  
     Route::prefix('equipos')->group(function(){
         Route::get('/', [EquiposController::class, 'index']);
         Route::post('/agregar', [EquiposController::class, 'agregarEquipo']);
@@ -95,8 +97,9 @@ Route::prefix('/Juegos')->group(function()
 
 });
 Route::prefix('usuario')->group(function(){
-    Route::post('/registro', [UsersController::class, 'register']);
+    Route::post('/register', [UsersController::class, 'register']);
     Route::post('/login', [UsersController::class, 'login']);
+    Route::post('/loginarmero', [UsersController::class, 'loginAsArmero']);
    Route::middleware('auth:sanctum')->group(function(){
         Route::get('/logout', [UsersController::class, 'logout']);
         Route::get('/', [UsersController::class, 'info']);
