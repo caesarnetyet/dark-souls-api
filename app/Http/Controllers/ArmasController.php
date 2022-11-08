@@ -52,16 +52,16 @@ class ArmasController extends Controller
         if ($validator->fails())
         return response()->json(["errores" => $validator->errors()], 400);
 
-        $response = Http::withToken($request->token)->post(' http://127.0.0.1:8000/api/v1/armas/agregar',[
-            "nombre"=>$request->nombre,
-            "tipo"=> $request->tipo,
-            "fuerza"=> $request->fuerza,
-            "magia"=> $request->magia,
-            "peso"=> $request->peso,
-            "estabilidad"=>$request->estabilidad
-    ]);
-    if ($response->failed())
-        return response()->json($response->json(),400);
+    //     $response = Http::withToken($request->bearerToken())->post('http://'.env('IP_EXTERNA').'/api/v1/armas/agregar',[
+    //         "nombre"=>$request->nombre,
+    //         "tipo"=> $request->tipo,
+    //         "fuerza"=> $request->fuerza,
+    //         "magia"=> $request->magia,
+    //         "peso"=> $request->peso,
+    //         "estabilidad"=>$request->estabilidad
+    // ]);
+    // if ($response->failed())
+    //     return response()->json($response->json(),400);
 
             $arma = new Arma();
             $arma->nombre = $request->nombre;

@@ -26,27 +26,29 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
- Route::middleware(['auth:sanctum','ability:armero'])->group(function(){
+
+Route::middleware('auth:sanctum', 'active')->prefix("v1")->group(function() {
+
+
     Route::prefix('armas')->group(function(){
-        Route::get('/', [ArmasController::class, 'index']);
-        Route::post('/agregar', [ArmasController::class, 'agregarArma']);
+        Route::middleware('role:guest')->get('/', [ArmasController::class, 'index']);
+        Route::middleware('role:user')->post('/agregar', [ArmasController::class, 'agregarArma']);
         Route::delete('/borrar', [ArmasController::class, 'borrarPorId']);
         Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
         Route::get('/personajes', [ArmasController::class, 'armaConPersonajes']);
     });
-   });
-Route::middleware('auth:sanctum')->group(function () {
+   
     Route::prefix('clases')->group(function(){
-        Route::get('/', [ClasesController::class, 'index']);
+        Route::middleware('role:guest')->get('/', [ClasesController::class, 'index']);
         Route::get('/{nombre}', [ClasesController::class, 'encontrarClase']);
-        Route::post('/agregar', [ClasesController::class, 'agregarClase']);
+        Route::middleware('role: user')->post('/agregar', [ClasesController::class, 'agregarClase']);
         Route::delete('/borrar/{id}', [ClasesController::class, 'borrarPorId']);
         Route::put('/actualizar/{id}', [ClasesController::class, 'actualizarClase']);
     });
 
     Route::prefix('personajes')->group(function(){
-        Route::get('/', [PersonajesController::class, 'index']);
-        Route::post('/agregar', [PersonajesController::class, 'agregarPersonaje']);
+        Route::middleware('role:guest')->get('/', [PersonajesController::class, 'index']);
+        Route::middleware('role:user')->post('/agregar', [PersonajesController::class, 'agregarPersonaje']);
         Route::delete('/borrar/{id}', [PersonajesController::class, 'borrarPorId']);
         Route::put('/actualizar/{id}', [PersonajesController::class, 'actualizarPersonaje']);
         Route::get('/armas', [PersonajesController::class, 'personajeConArmas']);
@@ -95,11 +97,13 @@ Route::prefix('/Juegos')->group(function()
 });
 });
 
+
 });
+
 Route::prefix('usuario')->group(function(){
+    Route::get('/usuariosroles', [UsersController::class, 'usuariosConRoles']);
     Route::post('/register', [UsersController::class, 'register']);
     Route::post('/login', [UsersController::class, 'login']);
-    Route::post('/loginarmero', [UsersController::class, 'loginAsArmero']);
    Route::middleware('auth:sanctum')->group(function(){
         Route::get('/logout', [UsersController::class, 'logout']);
         Route::get('/', [UsersController::class, 'info']);

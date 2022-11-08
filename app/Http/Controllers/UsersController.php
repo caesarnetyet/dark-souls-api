@@ -8,62 +8,60 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendMail;
 class UsersController extends Controller
 {
     public function register(Request $request) {
-        $response = Http::post("http://192.168.127.135:8000/api/Usuarios/insertar",[
-            "name"=>$request->name,
-            "email"=>$request->email,
-            "password"=>$request->password,
+        $validator = Validator::make($request->all(), [
+            'name' => 'required | string | max:50',
+            'email' => 'required | email | max:50 | unique:users',
+            'password' => 'required | string | min:8 | max:50',
+            'role_id' => 'required| integer | exists:roles,id'
+        ], [
+            'name.required' => 'El nombre es requerido',
+            'name.string' => 'El nombre debe ser una cadena de caracteres',
+            'name.max' => 'El nombre debe tener como máximo 50 caracteres',
+            'email.required' => 'El email es requerido',
+            'email.email' => 'El email debe ser un email válido',
+            'email.max' => 'El email debe tener como máximo 50 caracteres',
+            'email.unique' => 'El email ya existe',
+            'password.required' => 'La contraseña es requerida',
+            'password.string' => 'La contraseña debe ser una cadena de caracteres',
+            'password.min' => 'La contraseña debe tener como mínimo 8 caracteres',
+            'password.max' => 'La contraseña debe tener como máximo 50 caracteres',
+            'role_id.required' => 'El rol es requerido',
+            'role_id.exist' => 'El rol no existe',
+            'role_id.integer' => 'El rol debe ser un número entero'
         ]);
+        if($validator->fails()) {
+            return response()->json(["errores" => $validator->errors()], 400);
+        }
+
+            $user =  new User;
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = bcrypt($request->password);
+            $user->role_id = $request->role_id;
+            $user->save();
+            Mail::to($request->email)->send(new SendMail($user));
+
+            return response()->json("Usuario creado correctamente", 201);
+    
+    }
+    
+
+
+    public function login(Request $request) {
+        $user = User::where("email", $request->email)->first();
+            if ($user) 
+                $token = $user->createToken('auth_token')->plainTextToken;
+                return response()->json(["token" => $token, "Autentificacion correcta"], 200);
+
+            return response()->json("Contraseña o correo incorrectos", 400);
         
-        if($response->successful()) {
-            User::create([
-                "name"=>$request->name,
-                "email"=>$request->email,
-                "password"=>bcrypt($request->password),
-            ]);
-            return response()->json($response->json(), 201);
-        } else {
-            return response()->json($response->json(), 400);
-        }
-
-    }
-    
-
-
-    public function login(Request $request, Response $response) {
-        $response = Http::post("http://192.168.127.135:8000/api/Usuarios/login",[
-            "email"=>$request->email,
-            "password"=>$request->password,
-        ]);
-        if($response->successful()) {
-            $user = User::where("email", $request->email)->first();
-            $token = $user->createToken('auth_token')->plainTextToken;
-            return response()->json(["token" => $token, "token remoto" => $response['acces_token']], 200);
-        } else {
-            return response()->json($response->json(), 400);
-        }
     }
 
-
-
-    
-    public function loginAsArmero(Request $request) {
-        if(!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Correo eletronico o contraseña no coinciden'
-            ], 401);
-        }
-        $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('auth_token', ['armero'])->plainTextToken;
-        return response()->json([
-            'tipo_usuario' => 'armero',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 201);
-    }
     public function info(Request $request) {
         return $request->user();
     }
@@ -73,5 +71,10 @@ class UsersController extends Controller
         return [
             'message' => 'Sesión cerrada'
         ];
+    }
+
+    public function usuariosConRoles(){
+        $users = User::with('roles')->get();
+        return response()->json($users, 200);
     }
 }

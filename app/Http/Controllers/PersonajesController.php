@@ -32,14 +32,14 @@ class PersonajesController extends Controller
         if($validator->fails()){
             return response()->json(["errores" => $validator->errors()], 400);
         }
-        $response = Http::post('http://192.168.123.139:8000/api/personajes/agregar',[
+        // $response = Http::post('http://'.env('IP_EXTERNA').'/api/personajes/agregar',[
             
-                "nombre"=> $request->nombre,
-                "clase_id"=> $request->clase_id
+        //         "nombre"=> $request->nombre,
+        //         "clase_id"=> $request->clase_id
             
-        ]);
-        if ($response->failed())
-            return response()->json($response->json(),400);
+        // ]);
+        // if ($response->failed())
+        //     return response()->json($response->json(),400);
         $clase =Clase::find($request->clase_id);
         if($personaje->where("nombre", $request->nombre)->first())
             return response()->json(["error" => "El personaje ya existe"], 400);

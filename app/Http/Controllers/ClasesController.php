@@ -25,26 +25,25 @@ class ClasesController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'nombre' => 'required | string | max:50'
+                'nombre' => 'required | string | max:50 | unique:clases',
             ],
             [
                 'nombre.required' => 'El nombre es requerido',
                 'nombre.string' => 'El nombre debe ser una cadena de caracteres',
-                'nombre.max' => 'El nombre debe tener como máximo 50 caracteres'
+                'nombre.max' => 'El nombre debe tener como máximo 50 caracteres',
+                'nombre.unique' => 'La clase ya existe',
             ]
         );
 
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
-        if ($clase->where('nombre', $request->nombre)->first())
-            return response()->json(["error" => "La clase ya existe"], 400);
-        
-            $response = Http::post('http://192.168.123.139:8000/api/clases/agregar',[
-                'nombre'=>$request->nombre,
-            ]);
-        if ($response->failed())
-            return response()->json($response->json(),400);
+ 
+        //     $response = Http::post('http://'.env('IP_EXTERNA').'/api/clases/agregar',[
+        //         'nombre'=>$request->nombre,
+        //     ]);
+        // if ($response->failed())
+        //     return response()->json($response->json(),400);
 
         $clase->nombre = $request->nombre;
         $clase->save();
