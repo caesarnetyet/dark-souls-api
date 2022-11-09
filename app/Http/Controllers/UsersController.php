@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendMail;
+use Illuminate\Support\Facades\URL;
 class UsersController extends Controller
 {
     public function register(Request $request) {
@@ -17,7 +18,8 @@ class UsersController extends Controller
             'name' => 'required | string | max:50',
             'email' => 'required | email | max:50 | unique:users',
             'password' => 'required | string | min:8 | max:50',
-            'role_id' => 'required| integer | exists:roles,id'
+            'role_id' => 'required| integer | exists:roles,id',
+            'numero_telefono'=> 'required | string | size:10',
         ], [
             'name.required' => 'El nombre es requerido',
             'name.string' => 'El nombre debe ser una cadena de caracteres',
@@ -32,7 +34,10 @@ class UsersController extends Controller
             'password.max' => 'La contraseña debe tener como máximo 50 caracteres',
             'role_id.required' => 'El rol es requerido',
             'role_id.exist' => 'El rol no existe',
-            'role_id.integer' => 'El rol debe ser un número entero'
+            'role_id.integer' => 'El rol debe ser un número entero',
+            'numero_telefono.required' => 'El número de teléfono es requerido',
+            'numero_telefono.string' => 'El número de teléfono debe ser una cadena de caracteres',
+            'numero_telefono.size' => 'El número de teléfono debe tener 10 caracteres',
         ]);
         if($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
@@ -43,10 +48,10 @@ class UsersController extends Controller
             $user->email = $request->email;
             $user->password = bcrypt($request->password);
             $user->role_id = $request->role_id;
+            $user->numero_telefono = $request->numero_telefono;
             $user->save();
-            Mail::to($request->email)->send(new SendMail($user));
-
-            return response()->json("Usuario creado correctamente", 201);
+            // Mail::to($request->email)->send(new SendMail($user));
+        return URL::temporarySignedRoute('verify', now()->addMinutes(2), ['numero_telefono' => $user->numero_telefono]);
     
     }
     
@@ -77,4 +82,24 @@ class UsersController extends Controller
         $users = User::with('roles')->get();
         return response()->json($users, 200);
     }
+
+    public function verified(Request $request){
+
+        // dd($user);
+        $numero = intval($request->numero_telefono);
+        
+        $response = Http::get('https://api.nexmo.com/verify/json', [
+            'api_key' => 'e630d1a8',
+            'api_secret' => 'cL5tFVfss1mWz9St',
+            'number' => 52 .$numero,
+            'brand' => "pippipipipipi",
+        ]);
+
+        if ($response->ok()) {
+            return response()->json($response->json(), 200);
+        } else {
+            return response()->json($response->json(), 400);
+        }
+    }
+   
 }
