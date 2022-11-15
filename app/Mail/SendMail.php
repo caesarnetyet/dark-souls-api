@@ -11,18 +11,22 @@ class SendMail extends Mailable
 {
     use Queueable, SerializesModels;
     protected $user;
+    protected $url;
 
 
-    public function __construct(User $user)
+    public function __construct(User $user, $url)
     {
         $this->user = $user;
+        $this->url = $url;
     }
+   
     public function build()
     {
         return $this->view('email.welcome')
         ->with([
             'name' => $this->user->name,
             'email' => $this->user->email,
+            'url' => $this->url,
         ]); 
     }
 }

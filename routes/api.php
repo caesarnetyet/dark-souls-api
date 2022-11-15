@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum', 'active')->prefix("v1")->group(function() {
+Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
 
 
     Route::prefix('armas')->group(function(){
@@ -109,5 +109,6 @@ Route::prefix('usuario')->group(function(){
         Route::get('/', [UsersController::class, 'info']);
     });
 
-    Route::get('/verify/{numero_telefono}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
+    Route::get('/verify/{user}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
+    Route::get('/verifynumber', [UsersController::class, 'verifyNumber']);
 });

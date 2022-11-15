@@ -42,14 +42,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function roles(){
+    public function role(){
         return $this->belongsTo(Role::class);
     }
     
     public function tieneRol($role){
         // dd($role);
-        // dd($this->role()->where('name','guest')->first());
-        // dd($this->role()->where('name',$role)->first());
-        return $this->role()->where('name',$role)->first();
+        // dd($this->role->name);
+        if($this->role->name == $role){
+            return true;
+        }
+    }
+
+    public function codigos()
+    {
+        return $this->hasMany(Codigo::class);
     }
 }

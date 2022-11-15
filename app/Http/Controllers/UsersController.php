@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendMail;
+use App\Models\Codigo;
 use Illuminate\Support\Facades\URL;
 class UsersController extends Controller
 {
@@ -50,8 +51,10 @@ class UsersController extends Controller
             $user->role_id = $request->role_id;
             $user->numero_telefono = $request->numero_telefono;
             $user->save();
-            // Mail::to($request->email)->send(new SendMail($user));
-        return URL::temporarySignedRoute('verify', now()->addMinutes(2), ['numero_telefono' => $user->numero_telefono]);
+            $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user->id]);
+            Mail::to($request->email)->send(new SendMail($user, $url));
+            
+        return response()->json(["mensaje" => "Usuario registrado correctamente, espera nuestro mensaje"], 201);
     
     }
     
@@ -84,22 +87,48 @@ class UsersController extends Controller
     }
 
     public function verified(Request $request){
+        $user = User::find($request->user);
+        // dd($user->numero_telefono);
+        $random4Digits = rand(1000, 9999);
 
-        // dd($user);
-        $numero = intval($request->numero_telefono);
-        
-        $response = Http::get('https://api.nexmo.com/verify/json', [
-            'api_key' => 'e630d1a8',
-            'api_secret' => 'cL5tFVfss1mWz9St',
-            'number' => 52 .$numero,
-            'brand' => "pippipipipipi",
+        $response = Http::post('https://rest.nexmo.com/sms/json', [
+            "from"=>"Julio Cesar Tovar",
+            'api_key' => "e630d1a8",
+            'api_secret' => "cL5tFVfss1mWz9St",
+            'to' => 52 .$user->numero_telefono,
+            'text' => "Tu codigo de verificacion es: $random4Digits",
         ]);
 
-        if ($response->ok()) {
-            return response()->json($response->json(), 200);
+        if ($response->successful()) {
+            $codigo = new Codigo;
+            $codigo->codigo = $random4Digits;
+            $codigo->user_id = $user->id;
+            $codigo->save();
+            return response()->json([
+                'message' => 'Codigo enviado',
+                
+            ], 200);
         } else {
-            return response()->json($response->json(), 400);
+            return response()->json($response->json(),400);
         }
+        
     }
-   
+
+    public function verifyNumber(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'codigo' => 'required | integer | exists:codigos,codigo',
+        ], [
+            'codigo.required' => 'El codigo es requerido',
+            'codigo.integer' => 'El codigo debe ser un número entero',
+            'codigo.exist' => 'El codigo es incorrecto',
+        ]);
+        if($validator->fails()) {
+            return response()->json(["errores" => $validator->errors()], 400);
+        }
+        $codigo = Codigo::where('codigo', $request->codigo)->first();
+        $user = User::find($codigo->user_id);
+        $user->active = true;
+        $user->save();
+        return response()->json("Usuario verificado", 200);
+    }
 }

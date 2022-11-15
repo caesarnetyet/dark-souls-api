@@ -16,8 +16,10 @@ class Active
      */
     public function handle(Request $request, Closure $next)
     {
-        if(!$request->user()->where('active',1)->first())
+        
+        if($request->user()->active == 0) 
             return abort(401,'No eres un usuario activo');
+        else
         return $next($request);
     }
 }
