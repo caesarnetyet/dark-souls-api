@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -52,12 +53,18 @@ class UsersController extends Controller
             $user->numero_telefono = $request->numero_telefono;
             $user->save();
             $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user->id]);
-            Mail::to($request->email)->send(new SendMail($user, $url));
+            // Mail::to($request->email)->send(new SendMail($user, $url));
+
+            ProcessMail::dispatch($user, $url)
+                        ->delay(now()->addSeconds(20))
+                        ->onQueue('emails');
             
         return response()->json(["mensaje" => "Usuario registrado correctamente, espera nuestro mensaje"], 201);
     
     }
     
+
+   
 
 
     public function login(Request $request) {
@@ -71,6 +78,8 @@ class UsersController extends Controller
     }
 
     public function info(Request $request) {
+
+     
         return $request->user();
     }
 
@@ -131,4 +140,5 @@ class UsersController extends Controller
         $user->save();
         return response()->json("Usuario verificado", 200);
     }
+    
 }
