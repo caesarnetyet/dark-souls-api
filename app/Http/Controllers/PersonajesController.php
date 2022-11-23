@@ -41,12 +41,10 @@ class PersonajesController extends Controller
         // if ($response->failed())
         //     return response()->json($response->json(),400);
         $clase =Clase::find($request->clase_id);
-        if($personaje->where("nombre", $request->nombre)->first())
-            return response()->json(["error" => "El personaje ya existe"], 400);
+        $personaje = new Personaje();
         $personaje->nombre = $request->nombre;
-        $personaje->clase_id = $request->clase_id;
         $personaje->save();
-        
+        $clase->personajes()->save($personaje);
         if($personaje){
             return response()->json([
                 "mensaje" => "Personaje agregado correctamente",

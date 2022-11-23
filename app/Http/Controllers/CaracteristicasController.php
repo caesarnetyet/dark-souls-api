@@ -87,6 +87,7 @@ class CaracteristicasController extends Controller
 
     public function actualizarCaracteristica(Request $request)
     {
+        $user = $request->user();
        
             $validator = Validator::make(
             $request->all(),    
@@ -115,16 +116,9 @@ class CaracteristicasController extends Controller
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
-       
 
-        $caracteristica = Caracteristica::where('personaje_id', $request->personaje_id)->first();
-       
-        if (!$caracteristica) {
-            return response()->json([
-                'mensaje' => 'caracteristica no encontrada'
-            ], 400);}
-        
-            $caracteristica->personaje_id = $request->personaje_id;
+            $caracteristica = new Caracteristica;
+            
             $caracteristica->nivel = $request->nivel;
             $caracteristica->vitalidad = $request->vitalidad;
             $caracteristica->aguante = $request->aguante;
@@ -134,7 +128,7 @@ class CaracteristicasController extends Controller
             $caracteristica->aprendizaje = $request->aprendizaje;
             $caracteristica->inteligencia = $request->inteligencia;
             $caracteristica->fe = $request->fe;
-            $caracteristica->save();
+            $user->caracteristica()->save($caracteristica);
         $personaje =Personaje::find($request->personaje_id);
         return response()->json([
             'mensaje' => 'caracteristica actualizado correctamente',
