@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
 
 
     Route::prefix('armas')->group(function(){
-        Route::middleware('role:guest, admin')->get('/', [ArmasController::class, 'index']);
+        Route::middleware('role:guest,admin')->get('/', [ArmasController::class, 'index']);
         Route::middleware('role:user')->post('/agregar', [ArmasController::class, 'agregarArma']);
         Route::delete('/borrar', [ArmasController::class, 'borrarPorId']);
         Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
     Route::prefix('clases')->group(function(){
         Route::middleware('role:guest')->get('/', [ClasesController::class, 'index']);
         Route::get('/{nombre}', [ClasesController::class, 'encontrarClase']);
-        Route::middleware('role: user')->post('/agregar', [ClasesController::class, 'agregarClase']);
+        Route::middleware('role:user')->post('/agregar', [ClasesController::class, 'agregarClase']);
         Route::delete('/borrar/{id}', [ClasesController::class, 'borrarPorId']);
         Route::put('/actualizar/{id}', [ClasesController::class, 'actualizarClase']);
     });
@@ -66,38 +66,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
         Route::delete('/eliminar', [EquiposController::class, 'eliminarEquipo']);
     }); 
 
-    Route::prefix('megaman')->group(function(){
-        
-Route::prefix('/Tipos')->group(function()
-{
-    Route::get('/insertar',[Tipo::class,'insertarTipo']);
-    Route::get('/modificar/{id}',[Tipo::class,'modificarTipo']);
-    Route::get('/consultar',[Tipo::class,'consultarTipos']);
-    Route::get('/consultar/{id}',[Tipo::class,'consultarTipo']);
-});
-Route::prefix('/Jefes')->group(function()
-{
-    Route::get('/modificar/{id}',[Jefe::class,'modificarJefe']);
-    Route::post('/insertar',[Jefe::class,'insertarJefe']);
-    Route::get('/consultar', [jefe::class, 'consultarJefes']);
-    Route::get('/consultar/{id}', [jefe::class, 'consultarJefe']);
-});
-Route::prefix('/Mapas')->group(function()
-{
-    Route::get('/modificar/{id}',[Mapa::class,'modificarMapa']);
-    Route::get('/insertar',[Mapa::class,'insertarMapa']);
-    Route::get('/consultar',[Mapa::class,'consultarMapas']);
-});
-Route::prefix('/Juegos')->group(function()
-{
-    Route::put('/modificar/{id}',[Juego::class,'modificarJuego']);
-    Route::post('/insertar',[Juego::class,'insertarJuego']);
-    Route::get('/consultar',[Juego::class,'consultarJuegos']);
-    Route::get('/consultar/{id}',[Juego::class,'consultarJuego']);
-});
-});
-
-
+    
 });
 
 Route::prefix('usuario')->group(function(){

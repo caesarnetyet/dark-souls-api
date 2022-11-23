@@ -78,7 +78,6 @@ class ArmasController extends Controller
         
     }
 
-
     public function actualizarArma(Request $request){
         $validator = Validator::make($request->all(),
         [
@@ -156,6 +155,7 @@ if ($response->failed())
         $response = Http::post(' http://127.0.0.1:8000/api/v1/armas/borrar',[
             "id"=> $request->id,
 ]);
+
 if ($response->failed())
         return response()->json($response->json(),400);
 
@@ -175,9 +175,7 @@ if ($response->failed())
     public function armaConPersonajes() {
         $armas = Arma::with('personajes')->get();
         return response()->json($armas, 200);
-
     
     }
-
     
 }

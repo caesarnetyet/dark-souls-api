@@ -23,10 +23,11 @@ class Jefe extends Controller
             ],400);
         }
             
-            $response = Http::post('http://192.168.123.127:8000/api/Jefes/insertar',[
+            $response = Http::post("http://".env('URL_FORANEA').":8000/api/Jefes/insertar",[
                 'nombre'=>$request->nombre,
                 'tipo'=>$request->tipo,
                 'juego'=>$request->juego
+                
             ]);
             if ($response->status() == 201)
                 $jefe = new jefes;
@@ -60,7 +61,7 @@ class Jefe extends Controller
                 $validator->errors()
             ],400);
         }
-        $response = Http::post('http://192.168.123.139:8000/api/Jefes/insertar',[
+        $response = Http::post('http://'.env('URL_FORANEA').':8000/api/Jefes/insertar',[
             'nombre'=>$request->nombre,
             'tipo'=>$request->tipo,
             'juego'=>$request->juego
@@ -86,6 +87,7 @@ class Jefe extends Controller
         ->join('tipos','tipos.id','=','jefes.tipo')
         ->select('juegos.nombre as Juego','juegos.id as JuegoId','jefes.nombre as Jefe','jefes.id as JefeId','tipos.nombre as Tipo')->get();
         return $jefes;
+        
     }
 
     public function consultarJefe(Request $request, Response $response, $id){

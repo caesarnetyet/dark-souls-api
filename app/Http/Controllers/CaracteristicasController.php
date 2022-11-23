@@ -13,7 +13,8 @@ class CaracteristicasController extends Controller
 {
     public function agregarCaracteristica(Request $request,  Response $response){
         
-        $caracteristicas = new Caracteristica();
+        $caracteristicas = new Caracteristica;
+        
         $validator = Validator::make($request->all(),
         [
             "personaje_id" => "required | integer | exists:personajes,id",

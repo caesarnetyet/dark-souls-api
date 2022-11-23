@@ -47,7 +47,7 @@ class UsersController extends Controller
             $user->password = bcrypt($request->password);
             $user->role_id = 3;
             $user->numero_telefono = $request->numero_telefono;
-            $user->role()->save();
+            $user->save();
             $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user->id]);
             // Mail::to($request->email)->send(new SendMail($user, $url));
 
@@ -103,7 +103,10 @@ class UsersController extends Controller
     }
 
     public function verified(Request $request){
+        
         $user = User::find($request->user);
+        if (!!$user->active) return response()->json(["El usuario ya ha sido verificado"], 400); 
+        // dd($user->find(1)->codigo->);
         // dd($user->numero_telefono);
         $random4Digits = rand(1000, 9999);
         $url = URL::temporarySignedRoute('verifynumber', now()->addMinutes(30), ['user' => $user->id]);
@@ -119,11 +122,12 @@ class UsersController extends Controller
         if ($response->successful()) {
             $codigo = new Codigo;
             $codigo->codigo = $random4Digits;
-            $codigo->user_id = $user->id;
-            $codigo->save();
+            // $codigo->user_id = $user->id;
+            // $codigo->save();
+            $user->codigo()->save($codigo);
+
             return response()->json([
                 'message' => 'Codigo enviado',
-                
             ], 201);
         } else {
             return response()->json($response->json(),400);
