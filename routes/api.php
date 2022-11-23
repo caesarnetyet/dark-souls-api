@@ -110,5 +110,5 @@ Route::prefix('usuario')->group(function(){
     });
 
     Route::get('/verify/{user}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
-    Route::post('/verifynumber', [UsersController::class, 'verifyNumber']);
+    Route::post('/verifynumber', [UsersController::class, 'verifyNumber'])->name('verifynumber')->middleware('signed');
 });

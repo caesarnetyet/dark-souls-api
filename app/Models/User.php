@@ -49,8 +49,7 @@ class User extends Authenticatable
     public function tieneRol($role){
         // dd($role);
         // dd($this->role->name);
-
-        return $this->role->name == $role ? true : false;
+        return $this->role->name == $role;
     }
 
     public function codigo()
