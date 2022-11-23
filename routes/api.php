@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
 
 
     Route::prefix('armas')->group(function(){
-        Route::middleware('role:guest')->get('/', [ArmasController::class, 'index']);
+        Route::middleware('role:guest, admin')->get('/', [ArmasController::class, 'index']);
         Route::middleware('role:user')->post('/agregar', [ArmasController::class, 'agregarArma']);
         Route::delete('/borrar', [ArmasController::class, 'borrarPorId']);
         Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
@@ -47,7 +47,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
     });
 
     Route::prefix('personajes')->group(function(){
-        Route::middleware('role:guest')->get('/', [PersonajesController::class, 'index']);
+        Route::middleware('role:guest,admin')->get('/', [PersonajesController::class, 'index']);
         Route::middleware('role:user')->post('/agregar', [PersonajesController::class, 'agregarPersonaje']);
         Route::delete('/borrar/{id}', [PersonajesController::class, 'borrarPorId']);
         Route::put('/actualizar/{id}', [PersonajesController::class, 'actualizarPersonaje']);
@@ -103,12 +103,12 @@ Route::prefix('/Juegos')->group(function()
 Route::prefix('usuario')->group(function(){
     Route::get('/usuariosroles', [UsersController::class, 'usuariosConRoles']);
     Route::post('/register', [UsersController::class, 'register']);
-    Route::post('/login', [UsersController::class, 'login']);
+    Route::middleware('active')->post('/login', [UsersController::class, 'login']);
    Route::middleware('auth:sanctum')->group(function(){
         Route::get('/logout', [UsersController::class, 'logout']);
         Route::get('/', [UsersController::class, 'info']);
     });
 
     Route::get('/verify/{user}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
-    Route::get('/verifynumber', [UsersController::class, 'verifyNumber']);
+    Route::post('/verifynumber', [UsersController::class, 'verifyNumber']);
 });

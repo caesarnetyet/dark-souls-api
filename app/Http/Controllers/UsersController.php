@@ -52,13 +52,12 @@ class UsersController extends Controller
             $user->role_id = $request->role_id;
             $user->numero_telefono = $request->numero_telefono;
             $user->save();
-            $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user->id]);
+            $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user]);
             // Mail::to($request->email)->send(new SendMail($user, $url));
 
             ProcessMail::dispatch($user, $url)
                         ->delay(now()->addSeconds(20))
                         ->onQueue('emails');
-            
         return response()->json(["mensaje" => "Usuario registrado correctamente, espera nuestro mensaje"], 201);
     
     }
@@ -68,6 +67,19 @@ class UsersController extends Controller
 
 
     public function login(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required | email ',
+            'password' => 'required | string',
+        ], [
+            'email.required' => 'El email es requerido',
+            'email.email' => 'El email debe ser un email válido',
+            'email.max' => 'El email debe tener como máximo 50 caracteres',
+            'password.required' => 'La contraseña es requerida',
+            'password.string' => 'La contraseña debe ser una cadena de caracteres',
+            
+        ]);
+        if($validator->fails())return response()->json(["errores" => $validator->errors()], 400);
+        
         $user = User::where("email", $request->email)->first();
             if ($user) 
                 $token = $user->createToken('auth_token')->plainTextToken;
@@ -96,16 +108,18 @@ class UsersController extends Controller
     }
 
     public function verified(Request $request){
-        $user = User::find($request->user);
+        $user = $request->user();
+        dd($user);
         // dd($user->numero_telefono);
         $random4Digits = rand(1000, 9999);
-
+        $url = URL::temporarySignedRoute('verifynumber', now()->addMinutes(30), ['user' => $user]);
+        
         $response = Http::post('https://rest.nexmo.com/sms/json', [
             "from"=>"Julio Cesar Tovar",
             'api_key' => "e630d1a8",
             'api_secret' => "cL5tFVfss1mWz9St",
             'to' => 52 .$user->numero_telefono,
-            'text' => "Tu codigo de verificacion es: $random4Digits",
+            'text' => "Tu codigo de verificacion es: $random4Digits, tienes 30 minutos para insertarlo en la siguiente direccion $url",
         ]);
 
         if ($response->successful()) {
@@ -134,8 +148,7 @@ class UsersController extends Controller
         if($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
-        $codigo = Codigo::where('codigo', $request->codigo)->first();
-        $user = User::find($codigo->user_id);
+        $user = $request->user();
         $user->active = true;
         $user->save();
         return response()->json("Usuario verificado", 200);

@@ -49,13 +49,12 @@ class User extends Authenticatable
     public function tieneRol($role){
         // dd($role);
         // dd($this->role->name);
-        if($this->role->name == $role){
-            return true;
-        }
+
+        return $this->role->name == $role ? true : false;
     }
 
-    public function codigos()
+    public function codigo()
     {
-        return $this->hasMany(Codigo::class);
+        return $this->hasOne(Codigo::class);
     }
 }

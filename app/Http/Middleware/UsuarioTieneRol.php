@@ -7,14 +7,12 @@ use Closure;
 class UsuarioTieneRol
 {
    
-    public function handle($request, Closure $next, $role)
+    public function handle($request, Closure $next, ...$roles)
     {   
-     
-        if (! $request->user()->tieneRol($role)) 
-            return abort(401,'No esta autorizado para realizar esta accion');
-        
- 
-        return $next($request);
+        foreach($roles as $role)
+            if ($request->user()->tieneRol($role)) return $next($request);
+            
+        abort(403, 'No eres un usuario autorizado');
     }
  
 }

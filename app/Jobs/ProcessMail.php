@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ProcessMail implements ShouldQueue
 {
-    protected $user;
+    protected User $user;
     protected $url;
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
