@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
 
     Route::prefix('armas')->group(function(){
         Route::middleware('role:guest,admin')->get('/', [ArmasController::class, 'index']);
-        Route::middleware('role:user')->post('/agregar', [ArmasController::class, 'agregarArma']);
+        Route::middleware('role:admin,guest')->post('/agregar', [ArmasController::class, 'agregarArma']);
         Route::delete('/borrar', [ArmasController::class, 'borrarPorId']);
         Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
         Route::get('/personajes', [ArmasController::class, 'armaConPersonajes']);
@@ -72,7 +72,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
 Route::prefix('usuario')->group(function(){
     Route::get('/usuariosroles', [UsersController::class, 'usuariosConRoles']);
     Route::post('/register', [UsersController::class, 'register']);
-    Route::middleware('active')->post('/login', [UsersController::class, 'login']);
+    Route::post('/login', [UsersController::class, 'login']);
    Route::middleware('auth:sanctum')->group(function(){
         Route::get('/logout', [UsersController::class, 'logout']);
         Route::get('/', [UsersController::class, 'info']);

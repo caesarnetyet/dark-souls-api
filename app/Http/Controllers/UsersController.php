@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ProcessMail;
+use App\Jobs\ProcessPhone;
+use App\Jobs\ProcessVerification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -12,7 +14,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendMail;
 use App\Models\Codigo;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Validation\ValidationException;
+
 class UsersController extends Controller
 {
     public function register(Request $request) {
@@ -63,7 +68,7 @@ class UsersController extends Controller
 
 
     public function login(Request $request) {
-        if(!Auth::attempt($request->only('email', 'password'))) return response()->json(["mensaje" => "Credenciales incorrectas"], 401);
+      
         $validator = Validator::make($request->all(), [
             'email' => 'required | email ',
             'password' => 'required | string ',
@@ -77,7 +82,12 @@ class UsersController extends Controller
         ]);
         if($validator->fails())return response()->json(["errores" => $validator->errors()], 400);
         
-        $user = User::where("email", $request->email)->first();   
+        $user = User::where("email", $request->email)->where("active", true)->first(); 
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+           return response()->json(["mensaje" => "Credenciales incorrectas"], 401);
+        
+        }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(["token" => $token, "Autentificacion correcta"], 200);
 
@@ -111,28 +121,21 @@ class UsersController extends Controller
         $random4Digits = rand(1000, 9999);
         $url = URL::temporarySignedRoute('verifynumber', now()->addMinutes(30), ['user' => $user->id]);
         
-        $response = Http::post('https://rest.nexmo.com/sms/json', [
-            "from"=>"Julio Cesar Tovar",
-            'api_key' => "e630d1a8",
-            'api_secret' => "cL5tFVfss1mWz9St",
-            'to' => "52$user->numero_telefono",
-            'text' => "Tu codigo de verificacion es: $random4Digits, tienes 30 minutos para insertarlo en la siguiente direccion $url",
-        ]);
+        ProcessPhone::dispatch($user, $random4Digits)->delay(now()->addSeconds(20))->onQueue('phones');
+        ProcessVerification::dispatch($user, $url)->delay(now()->addSeconds(20))->onQueue('emails');
+    
+        $codigo = new Codigo;
+        $codigo->codigo = $random4Digits;
+        // $codigo->user_id = $user->id;
+        // $codigo->save();
+        $user->codigo()->save($codigo);
 
-        if ($response->successful()) {
-            $codigo = new Codigo;
-            $codigo->codigo = $random4Digits;
-            // $codigo->user_id = $user->id;
-            // $codigo->save();
-            $user->codigo()->save($codigo);
-
-            return response()->json([
-                'message' => 'Codigo enviado',
-            ], 201);
-        } else {
-            return response()->json($response->json(),400);
-        }
+        return response()->json([
+            'message' => 'Codigo enviado',
+        ], 201);
         
+    
+    
     }
 
     public function verifyNumber(Request $request) {

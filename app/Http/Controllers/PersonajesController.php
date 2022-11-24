@@ -100,11 +100,11 @@ class PersonajesController extends Controller
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
-       
+        $clase =Clase::find($request->clase_id);
         $personaje->nombre = $request->nombre;
         $personaje->clase_id = $request->clase_id;
         $personaje->save();
-        $clase =Clase::find($request->clase_id);
+        
         return response()->json([
             'mensaje' => 'personaje actualizado correctamente',
             'personaje' => [
