@@ -7,8 +7,8 @@
     <title>Welcome</title>
 </head>
 <body>
-    <h1>Welcome, {{$name}}</h1>
-    <p>Thank you for registering your email is {{$email}}</p>
+    <h1>Welcome, {{$user->name}}</h1>
+    <p>Thank you for registering your email is {{$user->email}}</p>
     <a href="{{$url}}">Enviar codigo al celular</a>
 </body>
 </html>

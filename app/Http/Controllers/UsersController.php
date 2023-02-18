@@ -116,24 +116,15 @@ class UsersController extends Controller
         
         $user = User::find($request->user);
         if (!!$user->active) return response()->json(["El usuario ya ha sido verificado"], 400); 
-        // dd($user->find(1)->codigo->);
-        // dd($user->numero_telefono);
+     
         $random4Digits = rand(1000, 9999);
         $url = URL::temporarySignedRoute('verifynumber', now()->addMinutes(30), ['user' => $user->id]);
-        
-        ProcessPhone::dispatch($user, $random4Digits)->delay(now()->addSeconds(20))->onQueue('phones');
-        ProcessVerification::dispatch($user, $url)->delay(now()->addSeconds(20))->onQueue('emails');
-    
+        ProcessPhone::dispatch($user, $random4Digits)->delay(now()->addSeconds(5))->onQueue('phones');
         $codigo = new Codigo;
         $codigo->codigo = $random4Digits;
-        // $codigo->user_id = $user->id;
-        // $codigo->save();
         $user->codigo()->save($codigo);
-
-        return response()->json([
-            'message' => 'Codigo enviado',
-        ], 201);
-        
+        $verificationUrl = env("FRONT_URL") . "/verify?url=" . urlencode($url);
+        return redirect($verificationUrl);
     
     
     }

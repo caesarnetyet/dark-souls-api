@@ -38,7 +38,7 @@ class ProcessPhone implements ShouldQueue
             "from"=>"Julio Cesar Tovar",
             'api_key' => "e630d1a8",
             'api_secret' => "cL5tFVfss1mWz9St",
-            'to' => "52{$this->user->numero_telefono}",
+            'to' => "+52{$this->user->numero_telefono}",
             'text' => "Tu codigo de verificacion es: {$this->random4Digits}, sigue las instrucciones en tu correo electronico",
         ]);
     }
