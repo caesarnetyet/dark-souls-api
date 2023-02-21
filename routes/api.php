@@ -50,8 +50,8 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
     Route::prefix('personajes')->group(function(){
         Route::get('/', [PersonajesController::class, 'index']);
         Route::middleware('role:user')->post('/agregar', [PersonajesController::class, 'agregarPersonaje']);
-        Route::delete('/borrar/{id}', [PersonajesController::class, 'borrarPorId']);
-        Route::put('/actualizar/{id}', [PersonajesController::class, 'actualizarPersonaje']);
+        Route::delete('/borrar/{personaje}', [PersonajesController::class, 'borrarPorId'])->name('personajes.destroy');
+        Route::put('/actualizar/{personaje}', [PersonajesController::class, 'actualizarPersonaje'])->name('persoajes.update');
         Route::get('/armas', [PersonajesController::class, 'personajeConArmas']);
         Route::get('/carasteristica', [PersonajesController::class, 'personajeConCaracteristicas']);
         Route::prefix('caracteristicas')->group(function(){

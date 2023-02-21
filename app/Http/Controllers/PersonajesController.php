@@ -73,45 +73,34 @@ class PersonajesController extends Controller
             ], 500);
         }
     }
-    public function borrarPorId($id)
+    public function borrarPorId(Personaje $personaje)
     {
-        $personaje = Personaje::find($id);
-        if ($personaje) {
-            $personaje->delete();
-            return response()->json([
-                'mensaje' => 'personaje eliminada correctamente',
-                'personaje' => $personaje
-            ], 201);
-        } else {
-            return response()->json([
-                'mensaje' => 'No se encontro la personaje'
-            ], 500);
-        }
+        $personaje->delete();
+        return response()->json([
+            'mensaje' => 'personaje eliminada correctamente',
+            'personaje' => $personaje
+        ], 201);
+
     }
 
-    public function actualizarPersonaje(Request $request, $id)
+    public function actualizarPersonaje(Request $request, Personaje $personaje)
     {
-        $personaje = Personaje::find($id);
-        if (!$personaje) {
-            return response()->json([
-                'mensaje' => 'personaje no encontrado'
-            ], 400);}
 
-            $validator = Validator::make(
-            $request->all(),
-            [
-                'nombre' => 'required | string | max:50',
-                "clase_id"=> "required | integer | exists:clases,id"
-            ],
-            [
-                'nombre.required' => 'El nombre es requerido',
-                'nombre.string' => 'El nombre debe ser una cadena de caracteres',
-                'nombre.max' => 'El nombre debe tener como máximo 50 caracteres',
-                "clase_id.required" => "La clase es requerida",
-                "clase_id.integer" => "La clase debe ser un número entero",
-                "clase_id.exists" => "La clase no existe"
-            ]
-        );
+        $validator = Validator::make(
+        $request->all(),
+        [
+            'nombre' => 'required | string | max:50',
+            "clase_id"=> "required | integer | exists:clases,id"
+        ],
+        [
+            'nombre.required' => 'El nombre es requerido',
+            'nombre.string' => 'El nombre debe ser una cadena de caracteres',
+            'nombre.max' => 'El nombre debe tener como máximo 50 caracteres',
+            "clase_id.required" => "La clase es requerida",
+            "clase_id.integer" => "La clase debe ser un número entero",
+            "clase_id.exists" => "La clase no existe"
+        ]
+    );
 
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
