@@ -12,7 +12,7 @@ class RolesSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         Role::create([
             'name' => 'admin',
@@ -22,6 +22,6 @@ class RolesSeeder extends Seeder
             ]);
         Role::create([
             'name' => 'guest',
-            ]);    
+            ]);
     }
 }

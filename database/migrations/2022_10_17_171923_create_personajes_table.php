@@ -19,7 +19,9 @@ class CreatePersonajesTable extends Migration
             $table->unsignedBigInteger('clase_id');
             $table->timestamps();
             $table->foreign('clase_id')->references('id')->on('clases');
-            
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
+
         });
     }
 

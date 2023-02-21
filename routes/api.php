@@ -9,6 +9,7 @@ use App\Http\Controllers\Jefe;
 use App\Http\Controllers\Juego;
 use App\Http\Controllers\Mapa;
 use App\Http\Controllers\UsersController;
+use App\Models\heroes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,7 +38,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
         Route::put('/actualizar', [ArmasController::class, 'actualizarArma']);
         Route::get('/personajes', [ArmasController::class, 'armaConPersonajes']);
     });
-   
+
     Route::prefix('clases')->group(function(){
         Route::middleware('role:guest')->get('/', [ClasesController::class, 'index']);
         Route::get('/{nombre}', [ClasesController::class, 'encontrarClase']);
@@ -47,7 +48,7 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
     });
 
     Route::prefix('personajes')->group(function(){
-        Route::middleware('role:guest,admin')->get('/', [PersonajesController::class, 'index']);
+        Route::get('/', [PersonajesController::class, 'index']);
         Route::middleware('role:user')->post('/agregar', [PersonajesController::class, 'agregarPersonaje']);
         Route::delete('/borrar/{id}', [PersonajesController::class, 'borrarPorId']);
         Route::put('/actualizar/{id}', [PersonajesController::class, 'actualizarPersonaje']);
@@ -57,16 +58,16 @@ Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
 
             Route::post('/agregar', [CaracteristicasController::class, 'agregarCaracteristica']);
             Route::put('/actualizar', [CaracteristicasController::class, 'actualizarCaracteristica']);
-        });    
+        });
     });
-  
+
     Route::prefix('equipos')->group(function(){
         Route::get('/', [EquiposController::class, 'index']);
         Route::post('/agregar', [EquiposController::class, 'agregarEquipo']);
         Route::delete('/eliminar', [EquiposController::class, 'eliminarEquipo']);
-    }); 
+    });
 
-    
+
 });
 
 Route::prefix('usuario')->group(function(){
@@ -81,3 +82,15 @@ Route::prefix('usuario')->group(function(){
     Route::get('/verify/{user}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
     Route::post('/verifynumber', [UsersController::class, 'verifyNumber'])->name('verifynumber')->middleware('signed');
 });
+
+Route::get('/mock-data',  fn() =>  heroes::all());
+
+Route::put('/mock-data', function (Request $request){
+    $hero = heroes::find($request->id);
+    $hero->update($request->all());
+    return $hero;
+});
+
+
+Route::get('/mock-data/{id}',  fn($id) =>  heroes::find($id));
+

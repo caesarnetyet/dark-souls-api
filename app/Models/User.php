@@ -45,7 +45,7 @@ class User extends Authenticatable
     public function role(){
         return $this->belongsTo(Role::class);
     }
-    
+
     public function tieneRol($role){
         // dd($role);
         // dd($this->role->name);
@@ -55,5 +55,10 @@ class User extends Authenticatable
     public function codigo()
     {
         return $this->hasOne(Codigo::class);
+    }
+
+    public function personajes()
+    {
+        return $this->hasMany(Personaje::class);
     }
 }

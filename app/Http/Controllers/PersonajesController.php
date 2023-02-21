@@ -4,15 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Clase;
 use App\Models\Personaje;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class PersonajesController extends Controller
 {
-    public function index() {
-        $personajes = Personaje::all();
-        return response()->json($personajes);
+    public function index(Request $request) {
+        $user = User::find($request->user()->id);
+        $personajes = $user->personajes()->get();
+        $data = $personajes->map(function (Personaje $personaje) {
+            return [
+                'id' => $personaje->id,
+                'model' => [
+                    'name' => $personaje->nombre,
+                    'class' => $personaje->clase->nombre
+                ],
+                'actions' => [
+                    'delete_url' => route('personajes.destroy', $personaje),
+                    'update_url' => route('personajes.update', $personaje),
+                ],
+            ];
+        });
+
+        return response()->json($data);
     }
     public function agregarPersonaje(Request $request, Validator $validator){
         $personaje = new Personaje();
@@ -33,10 +49,10 @@ class PersonajesController extends Controller
             return response()->json(["errores" => $validator->errors()], 400);
         }
         // $response = Http::post('http://'.env('IP_EXTERNA').'/api/personajes/agregar',[
-            
+
         //         "nombre"=> $request->nombre,
         //         "clase_id"=> $request->clase_id
-            
+
         // ]);
         // if ($response->failed())
         //     return response()->json($response->json(),400);
@@ -80,7 +96,7 @@ class PersonajesController extends Controller
             return response()->json([
                 'mensaje' => 'personaje no encontrado'
             ], 400);}
-        
+
             $validator = Validator::make(
             $request->all(),
             [
@@ -104,7 +120,7 @@ class PersonajesController extends Controller
         $personaje->nombre = $request->nombre;
         $personaje->clase_id = $request->clase_id;
         $personaje->save();
-        
+
         return response()->json([
             'mensaje' => 'personaje actualizado correctamente',
             'personaje' => [
