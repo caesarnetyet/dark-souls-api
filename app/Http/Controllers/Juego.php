@@ -35,7 +35,7 @@ class Juego extends Controller
                 'estado'=>$request->nombre." exitosamente agregado",
                 'estado remoto'=> $response->json()
             ]);
-        
+
     }
 
     public function modificarJuego(Request $request, Response $response, int $id){
@@ -58,7 +58,7 @@ class Juego extends Controller
     public function consultarJuegos(Request $request){
         $response = Http::withToken($request->token)->get('http://192.168.127.135:8000/api/Juegos/consultar');
         return response()->json($response->json(),$response->status());
-   
+
     }
-  
+
 }
