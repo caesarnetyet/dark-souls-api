@@ -78,7 +78,6 @@ Route::prefix('usuario')->group(function(){
         Route::get('/logout', [UsersController::class, 'logout']);
         Route::get('/', [UsersController::class, 'info']);
     });
-
     Route::get('/verify/{user}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
     Route::post('/verifynumber', [UsersController::class, 'verifyNumber'])->name('verifynumber')->middleware('signed');
 });

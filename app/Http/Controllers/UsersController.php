@@ -25,8 +25,7 @@ class UsersController extends Controller
             'name' => 'required | string | max:50',
             'email' => 'required | email | max:50 | unique:users',
             'password' => 'required | string | min:8 | max:50',
-           
-            'numero_telefono'=> 'required | string | size:10',
+            'phone_number'=> 'required | string | size:10',
         ], [
             'name.required' => 'El nombre es requerido',
             'name.string' => 'El nombre debe ser una cadena de caracteres',
@@ -39,10 +38,9 @@ class UsersController extends Controller
             'password.string' => 'La contraseña debe ser una cadena de caracteres',
             'password.min' => 'La contraseña debe tener como mínimo 8 caracteres',
             'password.max' => 'La contraseña debe tener como máximo 50 caracteres',
-
-            'numero_telefono.required' => 'El número de teléfono es requerido',
-            'numero_telefono.string' => 'El número de teléfono debe ser una cadena de caracteres',
-            'numero_telefono.size' => 'El número de teléfono debe tener 10 caracteres',
+            'phone_number.required' => 'El número de teléfono es requerido',
+            'phone_number.string' => 'El número de teléfono debe ser una cadena de caracteres',
+            'phone_number.size' => 'El número de teléfono debe tener 10 caracteres',
         ]);
         if($validator->fails()) return response()->json(["errores" => $validator->errors()], 400);
 
@@ -51,24 +49,24 @@ class UsersController extends Controller
             $user->email = $request->email;
             $user->password = bcrypt($request->password);
             $user->role_id = 3;
-            $user->numero_telefono = $request->numero_telefono;
+            $user->numero_telefono = $request->phone_number;
             $user->save();
             $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user->id]);
             // Mail::to($request->email)->send(new SendMail($user, $url));
-
-            ProcessMail::dispatch($user, $url)
+            $verificationUrl = env("FRONT_URL") . "/verify?url=" . urlencode($url);
+            ProcessMail::dispatch($user, $verificationUrl)
                         ->delay(now()->addSeconds(20))
                         ->onQueue('emails');
         return response()->json(["mensaje" => "Usuario registrado correctamente, espera nuestro mensaje"], 201);
-    
-    }
-    
 
-   
+    }
+
+
+
 
 
     public function login(Request $request) {
-      
+
         $validator = Validator::make($request->all(), [
             'email' => 'required | email ',
             'password' => 'required | string ',
@@ -78,26 +76,33 @@ class UsersController extends Controller
             'email.max' => 'El email debe tener como máximo 50 caracteres',
             'password.required' => 'La contraseña es requerida',
             'password.string' => 'La contraseña debe ser una cadena de caracteres',
-            
+
         ]);
         if($validator->fails())return response()->json(["errores" => $validator->errors()], 400);
-        
-        $user = User::where("email", $request->email)->where("active", true)->first(); 
+
+        $user = User::where("email", $request->email)->where("active", true)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
            return response()->json(["mensaje" => "Credenciales incorrectas"], 401);
-        
+
         }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(["token" => $token, "Autentificacion correcta"], 200);
 
-        
+
     }
 
     public function info(Request $request) {
-
-     
-        return $request->user();
+        $user = $request->user();
+        return response()->json(
+            [
+                "name" => $user-> name,
+                "email" => $user-> email,
+                "role" => $user-> role-> name,
+                "password" => $user-> password,
+                "phone" => $user-> numero_telefono,
+                "active" => $user-> active,
+            ]);
     }
 
     public function logout(Request $request) {
@@ -113,10 +118,10 @@ class UsersController extends Controller
     }
 
     public function verified(Request $request){
-        
+
         $user = User::find($request->user);
-        if (!!$user->active) return response()->json(["El usuario ya ha sido verificado"], 400); 
-     
+        if (!!$user->active) return response()->json(["El usuario ya ha sido verificado"], 400);
+
         $random4Digits = rand(1000, 9999);
         $url = URL::temporarySignedRoute('verifynumber', now()->addMinutes(30), ['user' => $user->id]);
         ProcessPhone::dispatch($user, $random4Digits)->delay(now()->addSeconds(5))->onQueue('phones');
@@ -125,8 +130,8 @@ class UsersController extends Controller
         $user->codigo()->save($codigo);
         $verificationUrl = env("FRONT_URL") . "/verify?url=" . urlencode($url);
         return redirect($verificationUrl);
-    
-    
+
+
     }
 
     public function verifyNumber(Request $request) {
@@ -145,5 +150,5 @@ class UsersController extends Controller
         $user->save();
         return response()->json("Usuario verificado", 200);
     }
-    
+
 }
