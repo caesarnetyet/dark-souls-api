@@ -30,8 +30,7 @@ class PersonajesController extends Controller
 
         return response()->json($data);
     }
-    public function agregarPersonaje(Request $request, Validator $validator){
-        $personaje = new Personaje();
+    public function agregarPersonaje(Request $request){
         $validator = Validator::make($request->all(),
         [
             "nombre" => "required | string | max:50",
@@ -48,15 +47,7 @@ class PersonajesController extends Controller
         if($validator->fails()){
             return response()->json(["errores" => $validator->errors()], 400);
         }
-        // $response = Http::post('http://'.env('IP_EXTERNA').'/api/personajes/agregar',[
-
-        //         "nombre"=> $request->nombre,
-        //         "clase_id"=> $request->clase_id
-
-        // ]);
-        // if ($response->failed())
-        //     return response()->json($response->json(),400);
-        $clase =Clase::find($request->clase_id);
+        $clase =Clase::findorFail($request->clase_id);
         $personaje = new Personaje();
         $personaje->nombre = $request->nombre;
         $personaje->save();

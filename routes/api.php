@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'active'])->prefix("v1")->group(function() {
+Route::middleware(['auth:sanctum', 'active'])->group(function() {
 
 
     Route::prefix('armas')->group(function(){
