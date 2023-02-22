@@ -51,9 +51,9 @@ class UsersController extends Controller
             $user->role_id = 3;
             $user->numero_telefono = $request->phone_number;
             $user->save();
-            $url = URL::temporarySignedRoute('verify', now()->addMinutes(30), ['user' => $user->id]);
+            $url = URL::temporarySignedRoute('verify', now()->addHours(30), ['user' => $user->id]);
             // Mail::to($request->email)->send(new SendMail($user, $url));
-            $verificationUrl = env("FRONT_URL") . "/verify?url=" . urlencode($url);
+            $verificationUrl = env("FRONT_URL") . "/verify/?url=" . urlencode($url);
             ProcessMail::dispatch($user, $verificationUrl)
                         ->delay(now()->addSeconds(20))
                         ->onQueue('emails');
@@ -128,8 +128,7 @@ class UsersController extends Controller
         $codigo = new Codigo;
         $codigo->codigo = $random4Digits;
         $user->codigo()->save($codigo);
-        $verificationUrl = env("FRONT_URL") . "/verify?url=" . urlencode($url);
-        return redirect($verificationUrl);
+        return response()->json($url);
 
 
     }

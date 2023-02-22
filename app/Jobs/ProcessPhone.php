@@ -36,8 +36,8 @@ class ProcessPhone implements ShouldQueue
     {
         Http::post('https://rest.nexmo.com/sms/json', [
             "from"=>"Julio Cesar Tovar",
-            'api_key' => "e630d1a8",
-            'api_secret' => "cL5tFVfss1mWz9St",
+            'api_key' => "11bb862d",
+            'api_secret' => "uNm7rSQIILYO99Ks",
             'to' => "+52{$this->user->numero_telefono}",
             'text' => "Tu codigo de verificacion es: {$this->random4Digits}, sigue las instrucciones en tu correo electronico",
         ]);
