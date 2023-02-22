@@ -77,6 +77,7 @@ Route::prefix('usuario')->group(function(){
    Route::middleware('auth:sanctum')->group(function(){
         Route::get('/logout', [UsersController::class, 'logout']);
         Route::get('/', [UsersController::class, 'info']);
+        Route::get('/users', [UsersController::class, 'index'])->middleware('role:admin');
     });
     Route::get('/verify/{user}', [UsersController::class, 'verified'])->name('verify')->middleware('signed');
     Route::post('/verifynumber', [UsersController::class, 'verifyNumber'])->name('verifynumber')->middleware('signed');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clase;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
@@ -10,12 +11,22 @@ use Illuminate\Support\Facades\Validator;
 class ClasesController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
-
-
         $clases = Clase::all();
-        return response()->json($clases);
+        $data = $clases->map(function (Clase $clase) {
+            return [
+                'id' => $clase->id,
+                'model' => [
+                    'name' => $clase->nombre,
+                ],
+                'actions' => [
+                    'delete_url' => route('clases.destroy', $clase),
+                    'update_url' => route('clases.update', $clase),
+                ],
+            ];
+        });
+        return response()->json($data);
     }
 
 
@@ -38,7 +49,7 @@ class ClasesController extends Controller
         if ($validator->fails()) {
             return response()->json(["errores" => $validator->errors()], 400);
         }
- 
+
         //     $response = Http::post('http://'.env('IP_EXTERNA').'/api/clases/agregar',[
         //         'nombre'=>$request->nombre,
         //     ]);
@@ -48,12 +59,12 @@ class ClasesController extends Controller
         $clase->nombre = $request->nombre;
         $clase->save();
 
-        
+
             return response()->json([
                 'mensaje' => 'Clase agregada correctamente',
                 'clase' => $clase
             ], 201);
-       
+
     }
 
     public function borrarPorId($id)
@@ -99,7 +110,7 @@ class ClasesController extends Controller
             return response()->json([
                 'mensaje' => 'Clase no encontrada'
             ], 500);}
-        
+
                 $validator = Validator::make(
             $request->all(),
             [

@@ -20,6 +20,26 @@ use Illuminate\Validation\ValidationException;
 
 class UsersController extends Controller
 {
+    public function index(Request $request)
+    {
+        $users = User::all();
+        $data = $users->map(function (User $user) {
+            return [
+                'id' => $user->id,
+                'model' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role->nombre,
+                    'phone_number' => $user->numero_telefono,
+                ],
+                'actions' => [
+                    'delete_url' => route('users.destroy', $user),
+                    'update_url' => route('users.update', $user),
+                ],
+            ];
+        });
+        return response()->json($data);
+    }
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
             'name' => 'required | string | max:50',
