@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('resistance');
             $table->integer('intelligence');
             $table->integer('faith');
-            $table->foreignId('character_id')->constrained();
+            $table->foreignId('classe_id')->constrained('classes');
             $table->timestamps();
         });
     }

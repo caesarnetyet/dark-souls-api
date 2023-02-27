@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Stat extends Model
 {
     use HasFactory;
+
+    public function classe()
+    {
+        return $this->belongsTo(Classe::class);
+    }
 }
