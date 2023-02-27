@@ -27,7 +27,7 @@ class CharactersController extends Controller
             ]);
     }
 
-    public function create(Request $request){
+    public function store(Request $request){
         $user = $request->user();
         $validator = Validator::make(
             $request->all(),
@@ -40,5 +40,24 @@ class CharactersController extends Controller
             return response()->json(['error'=>$validator->errors()], 400);
         $user->characters()->create($validator->validated());
         return response()->json(['message'=>'Personaje creado satisfactoriamente.'], 201);
+    }
+
+    public function update(Request $request, Character $character){
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'required|string',
+                'class_id' => 'required|integer|exists:classes,id',
+            ]
+        );
+        if ($validator->fails())
+            return response()->json(['error'=>$validator->errors()], 400);
+        $character->update($validator->validated());
+        return response()->json(['message'=>'Personaje actualizado satisfactoriamente.'], 201);
+    }
+
+    public function destroy(Character $character){
+        $character->delete();
+        return response()->json(['message'=>'Personaje eliminado satisfactoriamente.'], 201);
     }
 }

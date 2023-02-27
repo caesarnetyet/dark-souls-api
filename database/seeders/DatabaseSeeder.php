@@ -33,6 +33,16 @@ class DatabaseSeeder extends Seeder
                 'active' => 1
             ]
         );
+        User::create(
+            [
+                'name'=> 'employee',
+                'email'=> 'employee@gmail.com',
+                'password'=> bcrypt('employee'),
+                'role_id'=> 2,
+                'phone'=> '8139895086',
+                'active' => 1
+            ]
+        );
 
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessMail;
 use App\Jobs\ProcessPhone;
+use App\Models\Role;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
@@ -29,11 +30,35 @@ class UsersController extends Controller
                 ],
                 'actions'=>
                 [
-                    'edit_url' => URL::signedRoute('user.update ', ['user' => $user]),
+                    'edit_url' => URL::signedRoute('user.update', ['user' => $user]),
                     'delete_url' => URL::signedRoute('user.destroy', ['user' => $user]),
                 ]
             ]);
     }
+    public function getUser(Request $request){
+        $user = $request->user();
+        return response()->json([
+            'id' => $user->id,
+            'attributes'=>
+                [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'role' => $user->role->name,
+                    'active' => $user->active,
+                ],
+            'actions'=>
+                [
+                    'edit_url' => URL::signedRoute('user.update', ['user' => $user]),
+                    'delete_url' => URL::signedRoute('user.destroy', ['user' => $user]),
+                ]
+        ]);
+    }
+
+    public function getRoles(){
+        return Role::all('id','name');
+    }
+
 
     public function register(Request $request){
         $validator = Validator::make(
@@ -70,6 +95,8 @@ class UsersController extends Controller
     }
 
     public function verifyPhone(Request $request, User $user){
+        if ($user->active)
+            return response()->json(['message'=>'Usuario ya verificado'], 401);
         $validator = Validator::make(
             $request->all(),
             [
@@ -113,25 +140,6 @@ class UsersController extends Controller
         return response()->json(['error'=>'Contraseña incorrecta'], 400);
     }
 
-    public function getUser(Request $request){
-        $user = $request->user();
-        return response()->json([
-            'id' => $user->id,
-            'attributes'=>
-            [
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'role' => $user->role->name,
-                'active' => $user->active,
-            ],
-            'actions'=>
-            [
-                'edit_url' => URL::signedRoute('user.update', ['user' => $user]),
-                'delete_url' => URL::signedRoute('user.destroy', ['user' => $user]),
-            ]
-        ]);
-    }
 
     public function destroy(User $user){
         $user->delete();
