@@ -78,7 +78,8 @@ class UsersController extends Controller
         $validated['role_id'] = 3;
         $user = User::create($validated);
         $url = URL::signedRoute('user.verify', ['user' => $user]);
-        ProcessMail::dispatch($user, $url)->delay(now()->addSeconds(5))->onQueue('emails');
+        $front_url = env('FRONT_URL').'/verify?url='.$url;
+        ProcessMail::dispatch($user, $front_url)->delay(now()->addSeconds(5))->onQueue('emails');
         return response()->json(['message'=>'Usuario creado satisfactoriamente, revisa tu correo electronico.'], 201);
     }
 

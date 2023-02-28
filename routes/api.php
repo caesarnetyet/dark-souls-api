@@ -3,7 +3,6 @@
 use App\Http\Controllers\CharactersController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\UsersController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('users', [UsersController::class, 'index']);
+Route::middleware('role:admin')->get('users', [UsersController::class, 'index']);
 Route::get('roles', [UsersController::class, 'getRoles']);
 
 Route::prefix('user')->group(fn () =>[
@@ -44,28 +43,34 @@ Route::prefix('user')->group(fn () =>[
     ]),
 ]);
 
-Route::get('classes',[ClassesController::class, 'index']);
-Route::prefix('class')->group(fn () => [
-    Route::get('/', [ClassesController::class, 'show']),
-    Route::post('/', [ClassesController::class, 'store']),
-    Route::middleware('signed')->group(fn ()=> [
-        Route::put('/update/{class}', [ClassesController::class, 'update'])
-            ->name('class.update'),
+Route::middleware(['auth:sanctum', 'active'])->group(fn ()=> [
+    Route::middleware('role:employee')->get('classes',[ClassesController::class, 'index']),
+    Route::prefix('class')->group(fn () => [
+        Route::get('/', [ClassesController::class, 'show']),
+        Route::middleware('role:employee')->group(fn ()=>[
+            Route::post('/', [ClassesController::class, 'store']),
+            Route::middleware('signed')->group(fn ()=> [
+                Route::put('/update/{class}', [ClassesController::class, 'update'])
+                    ->name('class.update'),
 
-        Route::delete('/delete/{class}', [ClassesController::class, 'destroy'])
-            ->name('class.destroy'),
-    ])
-]);
+                Route::delete('/delete/{class}', [ClassesController::class, 'destroy'])
+                    ->name('class.destroy'),
+            ])
+        ])
+    ]),
 
+    Route::middleware('role:user')->group(fn ()=> [
+        Route::get('characters',[CharactersController::class, 'index']),
+        Route::prefix('character')->group(fn () => [
+            Route::post('/', [CharactersController::class, 'store']),
+            Route::middleware('signed')->group(fn () => [
+                Route::put('/update/{character}', [CharactersController::class, 'update'])
+                    ->name('character.update'),
 
-Route::get('characters',[CharactersController::class, 'index']);
-Route::prefix('character')->group(fn () => [
-    Route::post('/', [CharactersController::class, 'store']),
-    Route::middleware('signed')->group(fn () => [
-        Route::put('/update/{character}', [CharactersController::class, 'update'])
-            ->name('character.update'),
+                Route::delete('/delete/{character}', [CharactersController::class, 'destroy'])
+                    ->name('character.destroy'),
+            ])
+        ])
 
-        Route::delete('/delete/{character}', [CharactersController::class, 'destroy'])
-            ->name('character.destroy'),
     ])
 ]);

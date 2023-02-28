@@ -12,16 +12,17 @@ class CharactersController extends Controller
     public function index(){
         $characters = Character::all();
         return $characters->map(fn ($character)=>
+
             [
                 'id' => $character->id,
                 'attributes'=>
                 [
                     'name' => $character->name,
-                    'class' => $character->classe->name,
+                    'class' => $character->classe()->first()->name
                 ],
                 'actions'=>
                 [
-                    'edit_url' => URL::signedRoute('character.update ', ['character' => $character]),
+                    'edit_url' => URL::signedRoute('character.update', ['character' => $character]),
                     'delete_url' => URL::signedRoute('character.destroy', ['character' => $character]),
                 ]
             ]);
@@ -46,8 +47,8 @@ class CharactersController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'name' => 'required|string',
-                'class_id' => 'required|integer|exists:classes,id',
+                'name' => 'string',
+                'class_id' => 'integer|exists:classes,id',
             ]
         );
         if ($validator->fails())
