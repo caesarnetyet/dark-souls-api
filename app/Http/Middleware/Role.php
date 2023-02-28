@@ -15,6 +15,7 @@ class Role
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
+
         foreach($roles as $role)
             if($request->user()->role->name == $role)
                 return $next($request);

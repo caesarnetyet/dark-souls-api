@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::middleware('role:admin')->get('users', [UsersController::class, 'index']);
+Route::middleware(['auth:sanctum','role:admin'])->get('users', [UsersController::class, 'index']);
+
 Route::get('roles', [UsersController::class, 'getRoles']);
 
 Route::prefix('user')->group(fn () =>[
