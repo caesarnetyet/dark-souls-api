@@ -21,13 +21,14 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            RolesSeed::class
+            RolesSeed::class,
+            classSeed::class,
         ]);
         User::create(
             [
                 'name'=> 'admin',
                 'email'=> 'admin@gmail.com',
-                'password'=> bcrypt('nimda'),
+                'password'=> bcrypt('adminadmin'),
                 'role_id'=> 1,
                 'phone'=> '8139895086',
                 'active' => 1

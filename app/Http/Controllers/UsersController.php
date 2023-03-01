@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
@@ -148,13 +149,16 @@ class UsersController extends Controller
     }
 
     public function update(User $user, Request $request){
+
+
         $validator = Validator::make(
             $request->all(),
             [
                 'name' => 'string',
-                'email' => 'email|unique:users',
+                'email' => 'email',
                 'password' => 'string|min:8',
                 'phone' => 'string|numeric',
+                'active'=> 'boolean'
             ]
         );
         if ($validator->fails()) {
