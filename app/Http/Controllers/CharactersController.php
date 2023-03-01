@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Character;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
@@ -48,12 +49,17 @@ class CharactersController extends Controller
             $request->all(),
             [
                 'name' => 'string',
-                'class_id' => 'integer|exists:classes,id',
+                'class' => 'integer|exists:classes,id',
             ]
         );
         if ($validator->fails())
             return response()->json(['error'=>$validator->errors()], 400);
-        $character->update($validator->validated());
+        $validator->validated()['class_id'] = $validator->validated()['class'];
+
+
+        $character->class_id = $validator->validated()['class'];
+        $character->name = $validator->validated()['name'];
+        $character->save();
         return response()->json(['message'=>'Personaje actualizado satisfactoriamente.'], 201);
     }
 

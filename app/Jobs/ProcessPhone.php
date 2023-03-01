@@ -53,8 +53,6 @@ class ProcessPhone implements ShouldQueue
                );
         if ($response->ok() || $response->status() == 201)
             Log::info("SMS sent to $TO successfully");
-        else
-            Log::error("SMS sent to $TO failed");
-            Throw new Exception("SMS sent to $TO failed");
+
     }
 }

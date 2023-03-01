@@ -150,7 +150,6 @@ class UsersController extends Controller
 
     public function update(User $user, Request $request){
 
-
         $validator = Validator::make(
             $request->all(),
             [
@@ -158,14 +157,17 @@ class UsersController extends Controller
                 'email' => 'email',
                 'password' => 'string|min:8',
                 'phone' => 'string|numeric',
-                'active'=> 'boolean'
+                'active'=> 'boolean',
+                'role'=> 'integer'
             ]
         );
         if ($validator->fails()) {
             return response()->json(['error'=>$validator->errors()], 400);
         }
-
+        Log::info($validator->validated());
         $user->update($validator->validated());
+        $user->role_id = $validator->validated()['role'];
+        $user->save();
         return response()->json(['message'=>'Usuario actualizado satisfactoriamente'], 201);
     }
 }
