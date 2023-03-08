@@ -42,7 +42,7 @@ export default class UsersController {
     const signedUrl = Route.makeSignedUrl(
       'verify',
       { id: user.id },
-      { expiresIn: '1 day', prefixUrl: Env.get('BASE_URL') }
+      { expiresIn: '1 day', prefixUrl: Env.get('FRONT_URL') }
     )
     const url = Env.get('FRONTEND_URL') + '/verify?url=' + signedUrl
     const queue = new Queue('emails')
