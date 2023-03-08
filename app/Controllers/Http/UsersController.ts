@@ -39,11 +39,13 @@ export default class UsersController {
     payload['password'] = await Hash.make(payload['password'])
     payload['role_id'] = 3
     const user = await User.create(payload)
+
     const signedUrl = Route.makeSignedUrl(
       'verify',
       { id: user.id },
-      { expiresIn: '1 day', prefixUrl: Env.get('FRONT_URL') }
+      { expiresIn: '1 day', prefixUrl: Env.get('BASE_URL') }
     )
+
     const url = Env.get('FRONTEND_URL') + '/verify?url=' + signedUrl
     const queue = new Queue('emails')
     await queue.add('sendEmail', { email: user.email, url: url })
@@ -85,10 +87,15 @@ export default class UsersController {
 
   public async login({ request, response, auth }: HttpContextContract) {
     const userSchema = schema.create({
-      email: schema.string({}, [rules.email()]),
+      email: schema.string({}, [rules.email(), rules.exists({ table: 'users', column: 'email' })]),
       password: schema.string({}, [rules.minLength(6)]),
     })
     const payload = await request.validate({ schema: userSchema })
+    const user = await User.query().where('email', payload['email']).firstOrFail()
+    
+    if (!user.active) {
+      return response.status(401).send({ errors: [{ message: 'Usuario no activo' }] })
+    }
     const token = await auth.use('api').attempt(payload['email'], payload['password'])
     return response.ok({ token })
   }
@@ -116,14 +123,16 @@ export default class UsersController {
   public async editUser({ request, response, params }: HttpContextContract) {
     const userSchema = schema.create({
       name: schema.string.optional(),
-      email: schema.string.optional({}, [
-        rules.email(),
-        rules.unique({ table: 'users', column: 'email' }),
-      ]),
+      email: schema.string.optional({}, [rules.email()]),
       password: schema.string.optional({}, [rules.minLength(6)]),
       phone: schema.string.optional({}, [rules.minLength(10)]),
+      role: schema.number.optional(),
+      active: schema.boolean.optional(),
     })
+    
     const payload = await request.validate({ schema: userSchema })
+    payload['role_id'] = payload['role']
+    delete payload['role']
     const user = await User.findOrFail(params.id)
     user.merge(payload)
     await user.save()
