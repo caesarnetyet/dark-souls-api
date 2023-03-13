@@ -19,9 +19,10 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import View from '@ioc:Adonis/Core/View'
 
 Route.get('/', async () => {
-  return 'Hello world'
+  return View.render('welcome')
 })
 Route.get('/roles', 'UsersController.getRoles').middleware('auth:api')
 Route.get('/users', 'UsersController.index').middleware(['auth:api', 'role:admin', 'active'])
@@ -43,7 +44,7 @@ Route.group(() => {
     Route.get('/', 'ClassesController.show')
     Route.group(() => {
       Route.post('/', 'ClassesController.store')
-      Route.put('/update/:id', 'ClassesController.update').as('updateClass')
+      Route.put('/update/:id', 'ClassesController.update').as('editClass')
       Route.delete('/delete/:id', 'ClassesController.destroy').as('deleteClass')
     }).middleware('role:employee')
   }).prefix('/class')

@@ -12,8 +12,8 @@ export default class ClassesController {
         name: classe.name,
       },
       actions: {
-        edit_url: Route.makeSignedUrl('editClasse', { id: classe.id }),
-        delete_url: Route.makeSignedUrl('editClasse', { id: classe.id }),
+        edit_url: Route.makeSignedUrl('editClass', { id: classe.id }),
+        delete_url: Route.makeSignedUrl('deleteClass', { id: classe.id }),
       },
     }))
     return response.ok(models)

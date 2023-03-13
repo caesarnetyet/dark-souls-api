@@ -36,7 +36,7 @@ export default class CharactersController {
   public async update({ request, response, params }: HttpContextContract) {
     const characterSchema = schema.create({
       name: schema.string(),
-      class: schema.number(),
+      class: schema.number.optional(),
     })
     const payload = await request.validate({ schema: characterSchema })
     payload['class_id'] = payload['class']
