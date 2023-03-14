@@ -92,7 +92,7 @@ export default class UsersController {
     })
     const payload = await request.validate({ schema: userSchema })
     const user = await User.query().where('email', payload['email']).firstOrFail()
-    
+
     if (!user.active) {
       return response.status(401).send({ errors: [{ message: 'Usuario no activo' }] })
     }
@@ -129,7 +129,7 @@ export default class UsersController {
       role: schema.number.optional(),
       active: schema.boolean.optional(),
     })
-    
+
     const payload = await request.validate({ schema: userSchema })
     payload['role_id'] = payload['role']
     delete payload['role']

@@ -3,6 +3,7 @@ import { schema } from '@ioc:Adonis/Core/Validator'
 import Classe from '../../Models/Classe'
 import { Model } from '../../interfaces/model'
 import Route from '@ioc:Adonis/Core/Route'
+import Ws from '../../Services/Ws'
 export default class ClassesController {
   public async index({ response }: HttpContextContract) {
     const classes = await Classe.all()
@@ -29,7 +30,9 @@ export default class ClassesController {
     })
     const payload = await request.validate({ schema: classeSchema })
 
-    await Classe.create(payload)
+    const classe = await Classe.create(payload)
+
+    Ws.io.emit('addedClass', classe.name)
 
     return response.created({ message: 'Clase creada satisfactoriamente' })
   }
@@ -49,7 +52,10 @@ export default class ClassesController {
   }
   public async destroy({ response, params }: HttpContextContract) {
     const classe = await Classe.findOrFail(params.id)
+    Ws.io.emit('deletedClass', classe.name)
     await classe.delete()
+
+   
     return response.ok({ message: 'Clase eliminada satisfactoriamente' })
   }
 }

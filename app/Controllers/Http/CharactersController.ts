@@ -3,6 +3,8 @@ import { Model } from '../../interfaces/model'
 import Character from '../../Models/Character'
 import { schema } from '@ioc:Adonis/Core/Validator'
 import Route from '@ioc:Adonis/Core/Route'
+import Ws from '../../Services/Ws'
+
 export default class CharactersController {
   public async index({ response }: HttpContextContract) {
     const characters = await Character.query().preload('classe')
@@ -30,6 +32,7 @@ export default class CharactersController {
 
     await Character.create(payload)
 
+    Ws.io.emit('updateCharacter', payload)
     return response.created({ message: 'Personaje creado satisfactoriamente' })
   }
 
@@ -53,6 +56,8 @@ export default class CharactersController {
   public async destroy({ response, params }: HttpContextContract) {
     const character = await Character.findOrFail(params.id)
     await character.delete()
+
+    Ws.io.emit('updateCharacter', { ok: 'ok' })
     return response.ok({ message: 'Personaje eliminado satisfactoriamente' })
   }
 }
