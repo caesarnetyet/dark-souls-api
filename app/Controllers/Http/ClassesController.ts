@@ -4,9 +4,12 @@ import Classe from '../../Models/Classe'
 import { Model } from '../../interfaces/model'
 import Route from '@ioc:Adonis/Core/Route'
 import Ws from '../../Services/Ws'
+import Event from '@ioc:Adonis/Core/Event'
+
 export default class ClassesController {
   public async index({ response }: HttpContextContract) {
     const classes = await Classe.all()
+    
     const models: Model[] = classes.map((classe) => ({
       id: classe.id,
       attributes: {
@@ -32,7 +35,7 @@ export default class ClassesController {
 
     const classe = await Classe.create(payload)
 
-    Ws.io.emit('addedClass', classe.name)
+    Ws.io.emit('new:class', classe.name)
 
     return response.created({ message: 'Clase creada satisfactoriamente' })
   }
@@ -55,5 +58,17 @@ export default class ClassesController {
     Ws.io.emit('deletedClass', classe.name)
     await classe.delete()
     return response.ok({ message: 'Clase eliminada satisfactoriamente' })
+  }
+
+  public async add({response}: HttpContextContract){ 
+    response.header('Content-Type','text/event-stream')
+    response.header('Cache-Control','no-cache')
+    response.header('Connection','keep-alive')
+    
+    Event.on('new:class', (name: string) => {
+      Event.emit('class', {ok: 'ok'})
+      response.send('class'+ {ok: 'ok'})
+    })
+    
   }
 }

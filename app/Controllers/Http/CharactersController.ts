@@ -4,11 +4,12 @@ import Character from '../../Models/Character'
 import { schema } from '@ioc:Adonis/Core/Validator'
 import Route from '@ioc:Adonis/Core/Route'
 import Ws from '../../Services/Ws'
+import Event from '@ioc:Adonis/Core/Event'
 
 export default class CharactersController {
   public async index({ response }: HttpContextContract) {
     const characters = await Character.query().preload('classe')
-
+    Event.emit('new:class', 'ok')
     const models: Model[] = characters.map((character) => ({
       id: character.id,
       attributes: {

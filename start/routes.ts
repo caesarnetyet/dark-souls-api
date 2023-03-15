@@ -65,3 +65,5 @@ Route.group(() => {
     }).middleware('role:user')
   }).prefix('/character')
 }).middleware(['auth:api', 'active'])
+
+Route.get('/addclass', 'ClassesController.add')
