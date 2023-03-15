@@ -20,9 +20,13 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 import View from '@ioc:Adonis/Core/View'
-
+import getUptime from '../app/Services/Uptime'
 Route.get('/', async () => {
   return View.render('welcome')
+})
+
+Route.get('/uptime', async () => {
+  return getUptime()
 })
 Route.get('/roles', 'UsersController.getRoles').middleware('auth:api')
 Route.get('/users', 'UsersController.index').middleware(['auth:api', 'role:admin', 'active'])

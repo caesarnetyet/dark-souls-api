@@ -54,8 +54,6 @@ export default class ClassesController {
     const classe = await Classe.findOrFail(params.id)
     Ws.io.emit('deletedClass', classe.name)
     await classe.delete()
-
-   
     return response.ok({ message: 'Clase eliminada satisfactoriamente' })
   }
 }
