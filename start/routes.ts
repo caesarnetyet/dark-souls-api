@@ -66,4 +66,4 @@ Route.group(() => {
   }).prefix('/character')
 }).middleware(['auth:api', 'active'])
 
-Route.get('/addclass', 'ClassesController.add')
+Route.get('/addclass', 'ClassesController.emitEvent')

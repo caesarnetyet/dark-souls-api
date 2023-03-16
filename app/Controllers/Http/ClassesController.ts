@@ -9,7 +9,6 @@ import Event from '@ioc:Adonis/Core/Event'
 export default class ClassesController {
   public async index({ response }: HttpContextContract) {
     const classes = await Classe.all()
-    
     const models: Model[] = classes.map((classe) => ({
       id: classe.id,
       attributes: {
@@ -32,10 +31,10 @@ export default class ClassesController {
       name: schema.string(),
     })
     const payload = await request.validate({ schema: classeSchema })
-
+    //here i should emit the event
     const classe = await Classe.create(payload)
 
-    Ws.io.emit('new:class', classe.name)
+    Event.emit('new:class', classe.name)
 
     return response.created({ message: 'Clase creada satisfactoriamente' })
   }
@@ -60,15 +59,20 @@ export default class ClassesController {
     return response.ok({ message: 'Clase eliminada satisfactoriamente' })
   }
 
-  public async add({response}: HttpContextContract){ 
-    response.header('Content-Type','text/event-stream')
-    response.header('Cache-Control','no-cache')
-    response.header('Connection','keep-alive')
-    
-    Event.on('new:class', (name: string) => {
-      Event.emit('class', {ok: 'ok'})
-      response.send('class'+ {ok: 'ok'})
-    })
-    
+  public async emitEvent({ response }: HttpContextContract) {
+    const data = {
+      event: 'new_class',
+      data: 'hola',
+    }
+
+    response.header('Content-Type', 'text/event-stream')
+    response.header('Cache-Control', 'no-cache')
+    response.header('Connection', 'keep-alive')
+
+    const sendResponse = (name: string) => {
+      response.send(`event: ${data.event}\ndata: ${JSON.stringify(name)}\n\n`)
+    }
+
+    Event.on('new:class', sendResponse)
   }
 }

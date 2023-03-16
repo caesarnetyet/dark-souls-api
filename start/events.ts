@@ -9,10 +9,3 @@ import Event from '@ioc:Adonis/Core/Event'
 | boot.
 |
 */
-Event.on('new:class', (classe) => { 
-    console.log(classe)
-    })
-
-Event.on('delete:class', (classe) => {
-    console.log(classe)
-})
