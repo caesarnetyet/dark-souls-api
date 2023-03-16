@@ -9,3 +9,4 @@ import Event from '@ioc:Adonis/Core/Event'
 | boot.
 |
 */
+Event.on('new:class', 'Classe.onNewClasse')

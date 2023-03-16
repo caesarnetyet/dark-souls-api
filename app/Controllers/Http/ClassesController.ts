@@ -60,19 +60,16 @@ export default class ClassesController {
   }
 
   public async emitEvent({ response }: HttpContextContract) {
-    const data = {
-      event: 'new_class',
-      data: 'hola',
-    }
-
     response.header('Content-Type', 'text/event-stream')
     response.header('Cache-Control', 'no-cache')
-    response.header('Connection', 'keep-alive')
 
-    const sendResponse = (name: string) => {
-      response.send(`event: ${data.event}\ndata: ${JSON.stringify(name)}\n\n`)
+    const sendEvent = (event: string, data: any) => {
+      response.send(`event: ${event}\ndata: ${data}\n\n`)
     }
-
-    Event.on('new:class', sendResponse)
+    //send only one event
+    Event.on('new:class', (event) => {
+      sendEvent('new_class', event)
+    })
+    sendEvent('new_class', 'classe')
   }
 }
