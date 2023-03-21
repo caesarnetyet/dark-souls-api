@@ -5,7 +5,7 @@ import { Model } from '../../interfaces/model'
 import Route from '@ioc:Adonis/Core/Route'
 import Ws from '../../Services/Ws'
 import Event from '@ioc:Adonis/Core/Event'
-
+import Env from '@ioc:Adonis/Core/Env'
 export default class ClassesController {
   public async index({ response }: HttpContextContract) {
     const classes = await Classe.all()
@@ -34,7 +34,7 @@ export default class ClassesController {
     //here i should emit the event
     const classe = await Classe.create(payload)
 
-    Event.emit('new:class', classe.name)
+    Event.emit('new_class', classe.name)
 
     return response.created({ message: 'Clase creada satisfactoriamente' })
   }
@@ -54,23 +54,26 @@ export default class ClassesController {
   }
   public async destroy({ response, params }: HttpContextContract) {
     const classe = await Classe.findOrFail(params.id)
-    Ws.io.emit('deletedClass', classe.name)
+    Event.emit('update_class', classe.name)
     await classe.delete()
     return response.ok({ message: 'Clase eliminada satisfactoriamente' })
   }
 
   public async emitEvent({ response }: HttpContextContract) {
     const stream = response.response
-    stream.writeHead(200, {
+    stream.writeHead(200,{
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
       'Access-Control-Allow-Origin': '*',
     })
-    stream.write('OK')
-    //send only one event
-    Event.on('new:class', (event) => {
-      stream.write(event)
+    Event.on('new_class', (classe) => {
+      
+      stream.write(`event: new_class\ndata: ${classe}\n\n`)
+    })
+    Event.on('delete_class', (classe) => {
+      
+      stream.write(`event: delete_class\ndata: ${classe}\n\n`)
     })
   }
 }

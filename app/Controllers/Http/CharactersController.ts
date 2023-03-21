@@ -4,12 +4,13 @@ import Character from '../../Models/Character'
 import { schema } from '@ioc:Adonis/Core/Validator'
 import Route from '@ioc:Adonis/Core/Route'
 import Ws from '../../Services/Ws'
-import Event from '@ioc:Adonis/Core/Event'
+
+// import Classe from '../../Models/Classe'
 
 export default class CharactersController {
   public async index({ response }: HttpContextContract) {
     const characters = await Character.query().preload('classe')
-    Event.emit('new:class', 'ok')
+    
     const models: Model[] = characters.map((character) => ({
       id: character.id,
       attributes: {
@@ -32,8 +33,22 @@ export default class CharactersController {
     const payload = await request.validate({ schema: characterSchema })
 
     await Character.create(payload)
+    Ws.io.emit('updateCharacters', "from charactersController.ts: ")
+  //   const classe = Classe.findOrFail(payload.class_id)
 
-    Ws.io.emit('updateCharacter', payload)
+  //   const modelCharacter: Model= {
+  //     id: character.id,
+  //     attributes: {
+  //       name: character.name,
+  //       class: (await classe).name,
+  //   },
+  //   actions: {
+  //     edit_url: Route.makeSignedUrl('editCharacter', { id: character.id }),
+  //     delete_url: Route.makeSignedUrl('deleteCharacter', { id: character.id }),
+  //   }
+  // }
+
+  //   Ws.io.emit('updateCharacter', modelCharacter)
     return response.created({ message: 'Personaje creado satisfactoriamente' })
   }
 
@@ -42,23 +57,21 @@ export default class CharactersController {
       name: schema.string(),
       class: schema.number.optional(),
     })
+    
     const payload = await request.validate({ schema: characterSchema })
     payload['class_id'] = payload['class']
     delete payload['class']
-
     const character = await Character.findOrFail(params.id)
-
     character.merge(payload)
     await character.save()
-
+    Ws.io.emit('updateCharacters', "from charactersController.ts: ")
     return response.created({ message: 'Personaje actualizado satisfactoriamente' })
   }
 
   public async destroy({ response, params }: HttpContextContract) {
     const character = await Character.findOrFail(params.id)
     await character.delete()
-
-    Ws.io.emit('updateCharacter', { ok: 'ok' })
+    Ws.io.emit('updateCharacters', "from charactersController.ts: ")
     return response.ok({ message: 'Personaje eliminado satisfactoriamente' })
   }
 }
