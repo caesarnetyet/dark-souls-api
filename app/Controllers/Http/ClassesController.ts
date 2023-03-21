@@ -3,9 +3,9 @@ import { schema } from '@ioc:Adonis/Core/Validator'
 import Classe from '../../Models/Classe'
 import { Model } from '../../interfaces/model'
 import Route from '@ioc:Adonis/Core/Route'
-import Ws from '../../Services/Ws'
+// import Ws from '../../Services/Ws'
 import Event from '@ioc:Adonis/Core/Event'
-import Env from '@ioc:Adonis/Core/Env'
+// import Env from '@ioc:Adonis/Core/Env'
 export default class ClassesController {
   public async index({ response }: HttpContextContract) {
     const classes = await Classe.all()
@@ -54,8 +54,8 @@ export default class ClassesController {
   }
   public async destroy({ response, params }: HttpContextContract) {
     const classe = await Classe.findOrFail(params.id)
-    Event.emit('update_class', classe.name)
     await classe.delete()
+    Event.emit('delete_class', classe.name)
     return response.ok({ message: 'Clase eliminada satisfactoriamente' })
   }
 
